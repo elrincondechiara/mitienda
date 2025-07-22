@@ -13,6 +13,21 @@
     nav a:hover { background: #f06292; }
     .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 1em; padding: 1em; }
     .product { background: white; padding: 1em; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); text-align: center; color: #880e4f; }
+	.buy-button {
+    display: inline-block;
+    background: #d81b60;
+    color: white;
+    padding: 0.5em 1em;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 0.5em;
+    transition: background 0.3s;
+}
+
+.buy-button:hover {
+    background: #ad1457;
+}
 	.product img { 
     max-width: 100%; 
     max-height: 250px; 
@@ -58,17 +73,19 @@
 </nav>
 
 <div class="container" id="bazar">
-    <div class="product">
-        <img src="imagenes/vaso.jpg" alt=" Vasos Stanley" title="Vasos Stanley - $3.500 - Vasos Stanley">
-        <h3>Vasos Stanley</h3>
-        <p>$3.500</p>
-        <p>Descripción del producto</p>
-    </div>
+	<div class="product" data-nombre="Vasos Stanley" data-precio="3500">
+		<img src="imagenes/vaso.jpg" alt="Vasos Stanley" title="Vasos Stanley - $3.500 - Vasos Stanley">
+		<h3>Vasos Stanley</h3>
+		<p>$3.500</p>
+		<p>Descripción del producto</p>
+		<a href="javascript:void(0);" class="buy-button">Agregar al carrito</a>
+	</div>
     <div class="product">
         <img src="imagenes/florero.jpg" alt="Florero Decorativo" title="Florero Decorativo - $4.200 - Florero de vidrio decorativo">
         <h3>Florero Decorativo</h3>
         <p>$4.200</p>
         <p>Florero de vidrio decorativo</p>
+		<a href="javascript:void(0);" onclick="agregarAlCarrito('Florero Decorativo', 4200);" class="buy-button">Agregar al carrito</a>
     </div>
 </div>
 
@@ -140,6 +157,148 @@
 
 <a href="https://wa.me/5491150648790" class="whatsapp-float" target="_blank" title="Escribinos por WhatsApp">💬</a>
 
+
+<script>
+// Inicializar carrito si no existe
+if (!localStorage.getItem('carrito')) {
+    localStorage.setItem('carrito', JSON.stringify([]));
+}
+
+// Función para actualizar el contador flotante
+function actualizarContadorCarrito() {
+    const carrito = JSON.parse(localStorage.getItem('carrito'));
+    const contador = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+    document.getElementById('carrito-contador').innerText = contador;
+}
+
+// Función para agregar producto
+function agregarAlCarrito(nombre, precio) {
+    const carrito = JSON.parse(localStorage.getItem('carrito'));
+    const existente = carrito.find(p => p.nombre === nombre);
+    if (existente) {
+        existente.cantidad += 1;
+    } else {
+        carrito.push({ nombre, precio, cantidad: 1 });
+    }
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    actualizarContadorCarrito();
+    alerta(nombre + " agregado al carrito");
+}
+
+// Mostrar carrito emergente
+function mostrarCarrito() {
+    const carrito = JSON.parse(localStorage.getItem('carrito'));
+    if (carrito.length === 0) {
+        alerta("El carrito está vacío.");
+        return;
+    }
+    let mensaje = "🛒 Tu carrito:\n";
+    let total = 0;
+    carrito.forEach(item => {
+        mensaje += `• ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad}\n`;
+        total += item.precio * item.cantidad;
+    });
+    mensaje += `\nTotal: $${total}\n\n¿Deseas enviar este pedido por WhatsApp?`;
+
+    confirmar(mensaje).then((respuesta) => {
+        if (respuesta) {
+            const texto = encodeURIComponent(`Hola, quiero comprar:\n${mensaje}`);
+            window.open(`https://wa.me/5491150648790?text=${texto}`, "_blank");
+        }
+    });
+}
+
+
+// Inicializar contador al cargar
+document.addEventListener('DOMContentLoaded', actualizarContadorCarrito);
+
+// Función para vaciar carrito
+async function vaciarCarrito() {
+    const respuesta = await confirmar("¿Estás seguro de que deseas vaciar el carrito?");
+    if (respuesta) {
+        localStorage.setItem('carrito', JSON.stringify([]));
+        actualizarContadorCarrito();
+        alerta("El carrito ha sido vaciado.");
+    }
+}
+</script>
+
+<script>
+// Modal reutilizable
+function mostrarModal(mensaje, esConfirmacion = false) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalOk = document.getElementById('modal-ok');
+        const modalCancel = document.getElementById('modal-cancel');
+
+        modalMessage.textContent = mensaje;
+        modal.style.display = 'flex';
+        modalCancel.style.display = esConfirmacion ? 'inline-block' : 'none';
+
+        function cerrar(resultado) {
+            modal.style.display = 'none';
+            modalOk.removeEventListener('click', onOk);
+            modalCancel.removeEventListener('click', onCancel);
+            document.removeEventListener('keydown', onKey);
+            resolve(resultado);
+        }
+
+        function onOk() { cerrar(true); }
+        function onCancel() { cerrar(false); }
+        function onKey(e) { if (e.key === "Escape") cerrar(false); }
+
+        modalOk.addEventListener('click', onOk);
+        modalCancel.addEventListener('click', onCancel);
+        document.addEventListener('keydown', onKey);
+    });
+}
+
+// Reemplazo de alert
+async function alerta(mensaje) {
+    await mostrarModal(mensaje, false);
+}
+
+// Reemplazo de confirm
+async function confirmar(mensaje) {
+    const respuesta = await mostrarModal(mensaje, true);
+    return respuesta;
+}
+</script>
+
+<script>
+// Delegación de eventos para todos los botones de "Agregar al carrito"
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.buy-button').forEach(boton => {
+        boton.addEventListener('click', function() {
+            const producto = boton.closest('.product');
+            const nombre = producto.getAttribute('data-nombre');
+            const precio = parseInt(producto.getAttribute('data-precio'));
+            agregarAlCarrito(nombre, precio);
+        });
+    });
+});
+</script>
+
+<!-- Botón flotante de carrito (ya existente) -->
+<a href="javascript:void(0);" class="whatsapp-float" onclick="mostrarCarrito()" title="Ver carrito">
+    🛒<span id="carrito-contador" style="font-size:0.5em; position:absolute; top:5px; right:5px; background:#f44336; color:white; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center;">0</span>
+</a>
+
+<!-- Botón flotante para vaciar carrito -->
+<a href="javascript:void(0);" onclick="vaciarCarrito()" class="whatsapp-float"
+   style="right: 90px; background:#f44336;" title="Vaciar carrito">🗑️</a>
+   
+<div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
+    <div style="background:white; color:#880e4f; max-width:90%; width:300px; border-radius:8px; padding:1em; text-align:center; font-family:'Segoe UI', sans-serif; position:relative;">
+        <h3 id="modal-title" style="margin-top:0;">El Rincón de Chiara</h3>
+        <p id="modal-message">Mensaje</p>
+        <div style="margin-top:1em;">
+            <button id="modal-ok" style="background:#d81b60; color:white; border:none; padding:0.5em 1em; border-radius:20px; font-weight:bold; cursor:pointer; margin:0 0.5em;">Aceptar</button>
+            <button id="modal-cancel" style="background:#ccc; color:#333; border:none; padding:0.5em 1em; border-radius:20px; font-weight:bold; cursor:pointer; margin:0 0.5em; display:none;">Cancelar</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
