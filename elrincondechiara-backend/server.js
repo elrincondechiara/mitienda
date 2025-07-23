@@ -1,6 +1,6 @@
-const express = require("express");
-const cors = require("cors");
-const mercadopago = require("mercadopago");
+import express from "express";
+import cors from "cors";
+import mercadopago from "mercadopago";
 
 const app = express();
 app.use(express.json());
@@ -21,6 +21,12 @@ app.post("/crear-preferencia", async (req, res) => {
     }
 });
 
+// Ruta de prueba para el navegador
+app.get("/", (req, res) => {
+    res.send("El backend de El Rincón de Chiara está funcionando correctamente ✅");
+});
+
+// NO USAR UN PUERTO FIJO
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en puerto ${PORT}`);
