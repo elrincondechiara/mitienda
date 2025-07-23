@@ -280,6 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+
 <!-- Botón flotante de carrito (ya existente) -->
 <a href="javascript:void(0);" class="whatsapp-float" onclick="mostrarCarrito()" title="Ver carrito">
     🛒<span id="carrito-contador" style="font-size:0.5em; position:absolute; top:5px; right:5px; background:#f44336; color:white; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center;">0</span>
@@ -299,6 +300,48 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+
+<!-- Botón de pago Mercado Pago -->
+<a href="javascript:void(0);" onclick="pagarConMercadoPago()" class="whatsapp-float"
+   style="right: 160px; background:#009ee3;" title="Pagar con Mercado Pago">💳</a>
+
+<script>
+async function pagarConMercadoPago() {
+    const carrito = JSON.parse(localStorage.getItem('carrito'));
+    if (!carrito || carrito.length === 0) {
+        alerta("El carrito está vacío. Agrega productos antes de pagar.");
+        return;
+    }
+
+    // Convertir a estructura para Mercado Pago
+    const items = carrito.map(item => ({
+        title: item.nombre,
+        quantity: item.cantidad,
+        unit_price: item.precio
+    }));
+
+    try {
+        const respuesta = await fetch("http://localhost:3000/crear-preferencia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ items })
+        });
+
+        if (!respuesta.ok) {
+            throw new Error("Error al crear preferencia");
+        }
+
+        const data = await respuesta.json();
+        // Redirigir al checkout de Mercado Pago
+        window.location.href = data.init_point;
+    } catch (error) {
+        console.error(error);
+        alerta("Ocurrió un error al iniciar el pago. Verificá tu conexión o intenta más tarde.");
+    }
+}
+</script>
 
 </body>
 </html>
