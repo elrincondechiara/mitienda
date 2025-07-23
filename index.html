@@ -72,82 +72,12 @@
     <a href="#hogar">Hogar</a>
 </nav>
 
-<div class="container" id="bazar">
-	<div class="product" data-nombre="Vasos Stanley" data-precio="3500">
-		<img src="imagenes/vaso.jpg" alt="Vasos Stanley" title="Vasos Stanley - $3.500 - Vasos Stanley">
-		<h3>Vasos Stanley</h3>
-		<p>$3.500</p>
-		<p>Descripción del producto</p>
-		<a href="javascript:void(0);" class="buy-button">Agregar al carrito</a>
-	</div>
-    <div class="product">
-        <img src="imagenes/florero.jpg" alt="Florero Decorativo" title="Florero Decorativo - $4.200 - Florero de vidrio decorativo">
-        <h3>Florero Decorativo</h3>
-        <p>$4.200</p>
-        <p>Florero de vidrio decorativo</p>
-		<a href="javascript:void(0);" onclick="agregarAlCarrito('Florero Decorativo', 4200);" class="buy-button">Agregar al carrito</a>
-    </div>
-</div>
 
-<div class="container" id="blanqueria">
-    <div class="product">
-        <img src="imagenes/toalla-rosa.2800.toalla-de-algodon.jpg" alt="Toalla Rosa" title="Toalla Rosa - $2.800 - Toalla de algodón suave">
-        <h3>Toalla Rosa</h3>
-        <p>$2.800</p>
-        <p>Toalla de algodón suave</p>
-    </div>
-    <div class="product">
-        <img src="imagenes/juego-de-sabanas.6000.sabanas-suaves.jpg" alt="Juego de Sábanas" title="Juego de Sábanas - $6.000 - Sábanas suaves y cómodas">
-        <h3>Juego de Sábanas</h3>
-        <p>$6.000</p>
-        <p>Sábanas suaves y cómodas</p>
-    </div>
-</div>
-
-<div class="container" id="electronica">
-    <div class="product">
-        <img src="imagenes/auriculares-bluetooth.10000.auriculares-inalambricos.jpg" alt="Auriculares Bluetooth" title="Auriculares Bluetooth - $10.000 - Auriculares inalámbricos">
-        <h3>Auriculares Bluetooth</h3>
-        <p>$10.000</p>
-        <p>Auriculares inalámbricos</p>
-    </div>
-    <div class="product">
-        <img src="imagenes/smartwatch-rosa.18000.reloj-inteligente.jpg" alt="Smartwatch Rosa" title="Smartwatch Rosa - $18.000 - Reloj inteligente rosa">
-        <h3>Smartwatch Rosa</h3>
-        <p>$18.000</p>
-        <p>Reloj inteligente rosa</p>
-    </div>
-</div>
-
-<div class="container" id="electrodomesticos">
-    <div class="product">
-        <img src="imagenes/licuadora.14000.licuadora-rapida.jpg" alt="Licuadora" title="Licuadora - $14.000 - Licuadora rápida y eficiente">
-        <h3>Licuadora</h3>
-        <p>$14.000</p>
-        <p>Licuadora rápida y eficiente</p>
-    </div>
-    <div class="product">
-        <img src="imagenes/tostadora.7500.tostadora-compacta.jpg" alt="Tostadora" title="Tostadora - $7.500 - Tostadora compacta">
-        <h3>Tostadora</h3>
-        <p>$7.500</p>
-        <p>Tostadora compacta</p>
-    </div>
-</div>
-
-<div class="container" id="hogar">
-    <div class="product">
-        <img src="imagenes/lampara-de-pie.9500.lampara-deco.jpg" alt="Lámpara de Pie" title="Lámpara de Pie - $9.500 - Lámpara decorativa de pie">
-        <h3>Lámpara de Pie</h3>
-        <p>$9.500</p>
-        <p>Lámpara decorativa de pie</p>
-    </div>
-    <div class="product">
-        <img src="imagenes/alfombra-decorativa.8200.alfombra-suave.jpg" alt="Alfombra Decorativa" title="Alfombra Decorativa - $8.200 - Alfombra suave y decorativa">
-        <h3>Alfombra Decorativa</h3>
-        <p>$8.200</p>
-        <p>Alfombra suave y decorativa</p>
-    </div>
-</div>
+<div class="container" id="bazar"></div>
+<div class="container" id="blanqueria"></div>
+<div class="container" id="electronica"></div>
+<div class="container" id="electrodomesticos"></div>
+<div class="container" id="hogar"></div>
 
 <footer>
     © 2025 El Rincón de Chiara | Seguinos en
@@ -342,6 +272,61 @@ async function pagarConMercadoPago() {
     }
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const url = 'https://opensheet.elk.sh/12ij43IAUUSJDJTKKLJ9xxJ6hBUxKN0YOAcVj2PUOry8/Lista';
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => mostrarProductos(data))
+        .catch(error => {
+            console.error("Error cargando productos:", error);
+        });
+
+    function mostrarProductos(data) {
+        const contenedores = {
+			bazar: document.getElementById('bazar'),
+            blanqueria: document.getElementById('blanqueria'),
+            electronica: document.getElementById('electronica'),
+            electrodomesticos: document.getElementById('electrodomesticos'),
+            hogar: document.getElementById('hogar')
+        };
+
+        data.forEach(producto => {
+            const categoria = producto.categoria?.toLowerCase().trim();
+            if (!contenedores[categoria]) return;
+
+            const div = document.createElement('div');
+            div.className = 'product';
+            div.setAttribute('data-nombre', producto.nombre);
+            div.setAttribute('data-precio', producto.precio);
+
+            div.innerHTML = `
+                <img src="${producto.imagen}" alt="${producto.nombre}" title="${producto.nombre} - $${producto.precio} - ${producto.descripcion}">
+                <h3>${producto.nombre}</h3>
+                <p>$${producto.precio}</p>
+                <p>${producto.descripcion}</p>
+                <a href="javascript:void(0);" class="buy-button">Agregar al carrito</a>
+            `;
+
+            contenedores[categoria].appendChild(div);
+        });
+
+        // Delegar eventos a los botones agregados
+        document.querySelectorAll('.buy-button').forEach(boton => {
+            boton.addEventListener('click', function() {
+                const producto = boton.closest('.product');
+                const nombre = producto.getAttribute('data-nombre');
+                const precio = parseInt(producto.getAttribute('data-precio'));
+                agregarAlCarrito(nombre, precio);
+            });
+        });
+    }
+});
+</script>
+
+
 
 </body>
 </html>
