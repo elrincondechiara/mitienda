@@ -119,6 +119,66 @@ footer {
     align-items: center;
     justify-content: center;
 }
+
+.modal-product-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5em 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5em;
+}
+
+.modal-product-info {
+    flex: 1;
+}
+
+.modal-product-name {
+    font-size: 0.95em;
+    font-weight: 500;
+    color: #333;
+}
+
+.modal-product-price {
+    font-size: 0.9em;
+    color: #555;
+    text-align: right;
+    min-width: 70px;
+}
+
+.modal-product-qty {
+    width: 50px;
+    padding: 0.2em;
+    font-size: 0.9em;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modal-btn-remove {
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.3em 0.5em;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-left: 0.5em;
+}
+
+.modal-btn-whatsapp {
+    background: #25d366;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0.6em 1em;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    margin-top: 1em;
+    width: 100%;
+}
+
 </style>
 
 
@@ -219,113 +279,86 @@ function agregarAlCarrito(nombre, precio) {
 
 // Mostrar carrito emergente
 function mostrarCarrito() {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modal-body');
+    modalBody.innerHTML = ''; // limpiar
+
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
     if (carrito.length === 0) {
-        // Mostrar mensaje de carrito vacío con botón cerrar
-        const contenido = document.createElement('div');
-        contenido.textContent = "El carrito está vacío.";
-        contenido.style.textAlign = "center";
-        contenido.style.padding = "20px";
-        mostrarContenidoModal(contenido);
+        modalBody.innerHTML = "<p style='text-align:center; padding:1em;'>El carrito está vacío.</p>";
+        modal.style.display = 'flex';
         return;
     }
-
-    const contenido = document.createElement('div');
-    contenido.style.textAlign = "left";
-
-    const lista = document.createElement('ul');
-    lista.style.listStyle = "none";
-    lista.style.padding = "0";
 
     let total = 0;
 
     carrito.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.style.marginBottom = "15px";
-        li.style.display = "flex";
-        li.style.justifyContent = "space-between";
-        li.style.alignItems = "center";
+        total += item.precio * item.cantidad;
 
-        // Div para texto producto
+        const row = document.createElement('div');
+        row.className = 'modal-product-row';
+
         const infoDiv = document.createElement('div');
-        infoDiv.style.flex = "1";
+        infoDiv.className = 'modal-product-info';
 
-        const nombreDiv = document.createElement('div');
-        nombreDiv.textContent = item.nombre;
+        const name = document.createElement('div');
+        name.className = 'modal-product-name';
+        name.textContent = item.nombre;
 
-        // Input cantidad
-        const inputCantidad = document.createElement('input');
-        inputCantidad.type = 'number';
-        inputCantidad.min = '1';
-        inputCantidad.value = item.cantidad;
-        inputCantidad.style.width = '50px';
-        inputCantidad.style.marginTop = '5px';
-        inputCantidad.addEventListener('change', (e) => {
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.min = '1';
+        qtyInput.value = item.cantidad;
+        qtyInput.className = 'modal-product-qty';
+        qtyInput.addEventListener('change', (e) => {
             const nuevaCantidad = parseInt(e.target.value);
             if (isNaN(nuevaCantidad) || nuevaCantidad < 1) {
-                e.target.value = item.cantidad; // revertir si inválido
+                e.target.value = item.cantidad;
                 return;
             }
             actualizarCantidadCarrito(index, nuevaCantidad);
         });
 
-        infoDiv.appendChild(nombreDiv);
-        infoDiv.appendChild(inputCantidad);
+        infoDiv.appendChild(name);
+        infoDiv.appendChild(qtyInput);
 
-        // Precio
-        const precioDiv = document.createElement('div');
-        precioDiv.textContent = `$${item.precio * item.cantidad}`;
-        precioDiv.style.marginLeft = "10px";
-        precioDiv.style.minWidth = "80px";
-        precioDiv.style.textAlign = "right";
+        const price = document.createElement('div');
+        price.className = 'modal-product-price';
+        price.textContent = `$${item.precio * item.cantidad}`;
 
-        // Botón eliminar
-        const btnEliminar = document.createElement('button');
-        btnEliminar.textContent = "Eliminar";
-        btnEliminar.style.marginLeft = "10px";
-        btnEliminar.style.backgroundColor = "#f44336";
-        btnEliminar.style.color = "white";
-        btnEliminar.style.border = "none";
-        btnEliminar.style.borderRadius = "5px";
-        btnEliminar.style.cursor = "pointer";
-        btnEliminar.addEventListener('click', () => {
+        const btnRemove = document.createElement('button');
+        btnRemove.className = 'modal-btn-remove';
+        btnRemove.textContent = "✕";
+        btnRemove.title = "Eliminar";
+        btnRemove.addEventListener('click', () => {
             eliminarDelCarrito(index);
         });
 
-        li.appendChild(infoDiv);
-        li.appendChild(precioDiv);
-        li.appendChild(btnEliminar);
-        lista.appendChild(li);
+        row.appendChild(infoDiv);
+        row.appendChild(price);
+        row.appendChild(btnRemove);
 
-        total += item.precio * item.cantidad;
+        modalBody.appendChild(row);
     });
 
-    contenido.appendChild(lista);
+    const totalDiv = document.createElement('div');
+    totalDiv.style.textAlign = 'right';
+    totalDiv.style.fontWeight = 'bold';
+    totalDiv.style.marginTop = '0.5em';
+    totalDiv.textContent = `Total: $${total}`;
+    modalBody.appendChild(totalDiv);
 
-    const totalP = document.createElement('p');
-    totalP.textContent = `Total: $${total}`;
-    totalP.style.fontWeight = "bold";
-    totalP.style.textAlign = "right";
-    contenido.appendChild(totalP);
-
-    // Botón para enviar pedido por WhatsApp
     const btnWhats = document.createElement('button');
+    btnWhats.className = 'modal-btn-whatsapp';
     btnWhats.textContent = "Enviar pedido por WhatsApp";
-    btnWhats.style.backgroundColor = "#25d366";
-    btnWhats.style.color = "white";
-    btnWhats.style.border = "none";
-    btnWhats.style.borderRadius = "8px";
-    btnWhats.style.padding = "10px 20px";
-    btnWhats.style.cursor = "pointer";
-    btnWhats.style.display = "block";
-    btnWhats.style.marginTop = "10px";
     btnWhats.addEventListener('click', () => {
         enviarPedidoWhatsApp(carrito);
     });
-    contenido.appendChild(btnWhats);
 
-    mostrarContenidoModal(contenido);
+    modalBody.appendChild(btnWhats);
+
+    modal.style.display = 'flex';
 }
 
 function actualizarCantidadCarrito(indice, nuevaCantidad) {
@@ -369,6 +402,7 @@ function mostrarContenidoModal(contenidoHTML) {
     modal.style.display = 'flex';
 }
 
+
 function enviarPedidoWhatsApp(carrito) {
     let mensaje = "Hola, quiero comprar:\n";
     carrito.forEach(item => {
@@ -395,41 +429,36 @@ async function vaciarCarrito() {
 }
 
 // Modal reutilizable
-function mostrarModal(mensaje, esConfirmacion = false) {
+function mostrarModal(contenidoHTML) {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modal-body');
+
+    modalBody.innerHTML = ''; // Limpia contenido previo
+    modalBody.appendChild(contenidoHTML); // Inserta contenido
+
+    modal.style.display = 'flex';
+}
+
+// Reemplazo de alert con modal
+async function alerta(mensaje) {
     return new Promise((resolve) => {
         const modal = document.getElementById('modal');
-        const modalMessage = document.getElementById('modal-message');
-        const modalOk = document.getElementById('modal-ok');
-        const modalCancel = document.getElementById('modal-cancel');
+        const modalBody = document.getElementById('modal-body');
 
-        modalMessage.textContent = mensaje;
+        modalBody.innerHTML = `<p style="text-align: center; font-size: 1.1em;">${mensaje}</p>`;
+
         modal.style.display = 'flex';
 
-        modalCancel.style.display = esConfirmacion ? 'inline-block' : 'none';
-        modalOk.style.display = 'inline-block';
-
-        // Removemos listeners previos para evitar duplicados
-        modalOk.onclick = null;
-        modalCancel.onclick = null;
-
-        modalOk.onclick = () => {
+        const cerrar = () => {
             modal.style.display = 'none';
-            resolve(true);
+            document.getElementById('modal-close').removeEventListener('click', cerrar);
+            resolve();
         };
 
-        modalCancel.onclick = () => {
-            modal.style.display = 'none';
-            resolve(false);
-        };
-
-        // Si es confirmación, el botón cancelar aparece y funciona, si no, no
+        document.getElementById('modal-close').addEventListener('click', cerrar);
     });
 }
 
-// Reemplazo de alert
-async function alerta(mensaje) {
-    await mostrarModal(mensaje, false);
-}
 
 // Reemplazo de confirm
 async function confirmar(mensaje) {
@@ -437,31 +466,60 @@ async function confirmar(mensaje) {
 }
 </script>
 
-
 <script>
 // Delegación de eventos para todos los botones de "Agregar al carrito"
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.buy-button').forEach(boton => {
-        boton.addEventListener('click', function() {
-            const producto = boton.closest('.product');
-            const nombre = producto.getAttribute('data-nombre');
-            const precio = parseInt(producto.getAttribute('data-precio'));
-            agregarAlCarrito(nombre, precio);
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modal-close');
+
+    if (modal && modalClose) {
+        modalClose.addEventListener('click', () => {
+            modal.style.display = 'none';
         });
-    });
+    }
 });
 </script>
 
-<div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
-    <div style="background:white; color:#880e4f; max-width:90%; width:300px; border-radius:8px; padding:1em; text-align:center; font-family:'Segoe UI', sans-serif; position:relative;">
-        <h3 id="modal-title" style="margin-top:0;">El Rincón de Chiara</h3>
-        <p id="modal-message">Mensaje</p>
-        <div style="margin-top:1em;">
-            <button id="modal-ok" style="background:#d81b60; color:white; border:none; padding:0.5em 1em; border-radius:20px; font-weight:bold; cursor:pointer; margin:0 0.5em;">Aceptar</button>
-            <button id="modal-cancel" style="background:#ccc; color:#333; border:none; padding:0.5em 1em; border-radius:20px; font-weight:bold; cursor:pointer; margin:0 0.5em; display:none;">Cancelar</button>
-        </div>
+<div id="modal" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    z-index:999;
+    align-items:center;
+    justify-content:center;
+">
+    <div id="modal-content" style="
+        background:#fff;
+        color:#333;
+        max-width:95%;
+        width:400px;
+        border-radius:12px;
+        padding:1em;
+        font-family:'Segoe UI', sans-serif;
+        position:relative;
+        box-shadow:0 4px 20px rgba(0,0,0,0.2);
+        max-height:90vh;
+        overflow-y:auto;
+    ">
+        <button id="modal-close" style="
+            position:absolute;
+            top:10px;
+            right:10px;
+            background:transparent;
+            border:none;
+            font-size:1.5em;
+            color:#888;
+            cursor:pointer;
+        ">&times;</button>
+        <h3 id="modal-title" style="margin:0; text-align:center; font-weight:500; color:#d81b60;">Tu Carrito</h3>
+        <div id="modal-body" style="margin-top:1em;"></div>
     </div>
 </div>
+
 
 <script>
 async function pagarConMercadoPago() {
@@ -572,6 +630,12 @@ window.addEventListener('scroll', () => {
         buttons.forEach(btn => btn.style.opacity = "1");
     }
     lastScroll = currentScroll <= 0 ? 0 : currentScroll;
+});
+</script>
+
+<script>
+document.getElementById('modal-close').addEventListener('click', () => {
+    document.getElementById('modal').style.display = 'none';
 });
 </script>
 
