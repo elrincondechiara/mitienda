@@ -5,172 +5,216 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>El Rincón de Chiara</title>
 <style>
-    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #ecdae8; color: #c2185b; }
-    header { background: #fee6e6; padding: 1em; text-align: center; }
-    header img { max-width: 300px; height: auto; }
-    nav { background: #430936; display: flex; justify-content: center; flex-wrap: wrap; }
-    nav a { color: white; text-decoration: none; padding: 1em; font-weight: bold; }
-    nav a:hover { background: #f06292; }
-    .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 1em; padding: 1em; }
-    .product { background: white; padding: 1em; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); text-align: center; color: #880e4f; }
-	.buy-button {
-		display: inline-block;
-		background: #d81b60;
-		color: white;
-		padding: 0.5em 1em;
-		border-radius: 20px;
-		text-decoration: none;
-		font-weight: bold;
-		margin-top: 0.5em;
-		transition: background 0.3s;
-	}
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #fdfdfd;
+    color: #333;
+}
 
-	.buy-button:hover {
-		background: #ad1457;
-	}
-	
-	.product img { 
-		max-width: 100%; 
-		max-height: 250px; 
-		height: auto; 
-		border-radius: 8px; 
-	}
-	
-	footer { 
-		background: #f8bbd0; 
-		color: #880e4f; 
-		text-align: center; 
-		padding: 1em; 
-		margin-top: 2em; 
-		font-weight: bold; 
-	}
-	
-	.whatsapp-float {
-		position: fixed;
-		width: 60px;
-		height: 60px;
-		bottom: 20px;
-		right: 20px;
-		background: #25d366;
-		color: white;
-		border-radius: 50%;
-		text-align: center;
-		font-size: 30px;
-		line-height: 60px;
-		z-index: 100;
-		box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-		text-decoration: none;
-		transition: transform 0.3s, opacity 0.3s;
-		opacity: 0.8; /* inicialmente un poco transparente */
-	}
+header {
+    background: #fff;
+    padding: 1em;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
 
-	.whatsapp-float:hover {
-		transform: scale(1.05);
-		opacity: 0.3; /* más transparente al pasar el mouse */
-	}
-	.floating-button {
-		position: fixed;
-		right: 20px;
-		width: 60px;
-		height: 60px;
-		border-radius: 50%;
-		background: #ffffff;
-		box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		z-index: 100;
-		transition: transform 0.3s, background 0.3s, opacity 0.3s;
-	}
-	
-	.floating-button:hover {
-		transform: scale(1.1);
-		background: #f0f0f0;
-	}
-	
-	.floating-button.scrolled {
-		opacity: 0.5;
-	}
-	
-	.floating-button svg {
-		width: 30px;
-		height: 30px;
-	}
-	
-	#carrito-contador {
-		position: absolute;
-		top: 5px;
-		right: 5px;
-		background: #f44336;
-		color: white;
-		font-size: 0.7em;
-		border-radius: 50%;
-		width: 20px;
-		height: 20px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+header img {
+    max-width: 220px;
+    height: auto;
+}
+
+header p {
+    color: #555;
+    font-weight: 500;
+}
+
+nav {
+    background: #430936;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0.5em 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.75em 1em;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: background 0.3s, color 0.3s;
+}
+
+nav a:hover {
+    background: #d81b60;
+    color: white;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1em;
+    padding: 1em;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.product {
+    background: white;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-align: center;
+    color: #333;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.product img {
+    max-width: 100%;
+    max-height: 220px;
+    border-radius: 8px;
+    margin-bottom: 0.5em;
+}
+
+.buy-button {
+    display: inline-block;
+    background: #d81b60;
+    color: white;
+    padding: 0.5em 1em;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 0.5em;
+    transition: background 0.3s;
+}
+
+.buy-button:hover {
+    background: #ad1457;
+}
+
+footer {
+    background: #430936;
+    color: white;
+    text-align: center;
+    padding: 1em;
+    margin-top: 2em;
+    font-weight: 500;
+}
+
+.floating-button {
+    position: fixed;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+.floating-button:hover {
+    transform: scale(1.1);
+}
+
+.floating-button.scrolled {
+    opacity: 0.6;
+}
+
+.floating-button svg {
+    width: 28px;
+    height: 28px;
+}
+
+#carrito-contador {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #f44336;
+    color: white;
+    font-size: 0.7em;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 </style>
+
 
 <script>
 window.addEventListener('scroll', () => {
-  const botones = document.querySelectorAll('.floating-button');
-  if(window.scrollY > 50) {
-    botones.forEach(btn => btn.classList.add('scrolled'));
-  } else {
-    botones.forEach(btn => btn.classList.remove('scrolled'));
-  }
+    const botones = document.querySelectorAll('.floating-button');
+    if (window.scrollY > 50) {
+        botones.forEach(btn => btn.classList.add('scrolled'));
+    } else {
+        botones.forEach(btn => btn.classList.remove('scrolled'));
+    }
 });
 </script>
 
 <!-- Botón WhatsApp -->
 <a href="https://wa.me/5491150648790" target="_blank" title="Escribinos por WhatsApp"
    class="floating-button" style="bottom: 20px; background: #25D366;">
-    <svg viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 32 32" fill="white" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
         <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.82.75 5.46 2.04 7.75L.5 31.5l7.95-2.02C10.55 29.25 13.18 30 16 30c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5zM16 28c-2.42 0-4.68-.66-6.62-1.8l-.47-.28-4.72 1.19 1.21-4.6-.31-.48C4.61 19.66 4 17.88 4 16 4 9.38 9.38 4 16 4s12 5.38 12 12-5.38 12-12 12zm6.02-8.59c-.33-.17-1.94-.96-2.24-1.07-.3-.11-.52-.17-.74.17s-.85 1.07-1.04 1.29c-.19.22-.38.25-.71.08-.33-.17-1.38-.51-2.63-1.63-.97-.87-1.62-1.94-1.81-2.27-.19-.33-.02-.51.14-.67.15-.15.33-.38.49-.57.16-.19.22-.33.33-.55.11-.22.06-.41-.03-.58-.09-.17-.74-1.78-1.02-2.44-.27-.65-.55-.56-.74-.57l-.63-.01c-.22 0-.58.08-.89.41-.3.33-1.17 1.14-1.17 2.77 0 1.63 1.19 3.2 1.36 3.42.17.22 2.35 3.6 5.7 5.05.8.35 1.42.56 1.9.71.8.25 1.53.22 2.11.13.64-.1 1.94-.79 2.21-1.56.27-.77.27-1.43.19-1.56-.08-.13-.3-.21-.63-.38z"/>
     </svg>
 </a>
 
-<!-- Botón Mercado Pago (tarjeta) -->
+<!-- Botón Mercado Pago -->
 <a href="javascript:void(0);" onclick="pagarConMercadoPago()" title="Pagar con Mercado Pago"
    class="floating-button" style="bottom: 90px; background: #009ee3;">
-    <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 24 24" fill="white" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
         <path d="M2 4C0.89 4 0 4.89 0 6V18C0 19.1 0.89 20 2 20H22C23.1 20 24 19.1 24 18V6C24 4.89 23.1 4 22 4H2ZM2 6H22V8H2V6ZM2 10H22V18H2V10ZM4 12V14H6V12H4ZM8 12V14H10V12H8Z"/>
     </svg>
 </a>
 
 <!-- Botón Carrito -->
 <a href="javascript:void(0);" onclick="mostrarCarrito()" title="Ver carrito"
-   class="floating-button" style="bottom: 160px; background: #d81b60;">
-    <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+   class="floating-button" style="bottom: 160px; background: #d81b60; position: fixed;">
+    <svg viewBox="0 0 24 24" fill="white" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
         <path d="M7 18C5.9 18 5 18.9 5 20C5 21.1 5.9 22 7 22C8.1 22 9 21.1 9 20C9 18.9 8.1 18 7 18ZM1 2V4H3L6.6 11.59L5.24 14.04C5.09 14.32 5 14.65 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.28 15 7.17 14.89 7.17 14.75L7.2 14.65L8.1 13H14.55C15.3 13 15.96 12.58 16.3 11.97L20.88 3.97C20.96 3.84 21 3.68 21 3.5C21 3.22 20.78 3 20.5 3H5.21L4.27 1H1ZM17 18C15.9 18 15 18.9 15 20C15 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18Z"/>
     </svg>
     <span id="carrito-contador">0</span>
 </a>
+
 </head>
 <body>
 <header>
     <img src="logo.png" alt="El Rincón de Chiara">
 	<p>Decorá tu hogar con amor y estilo</p>
 </header>
+
 <nav>
     <a href="#bazar">Bazar</a>
     <a href="#blanqueria">Blanquería</a>
     <a href="#electronica">Electrónica</a>
     <a href="#electrodomesticos">Electrodomésticos</a>
     <a href="#hogar">Hogar</a>
-	<a href="#indumentaria">Indumentaria</a>
+    <a href="#indumentaria">Indumentaria</a>
 </nav>
 
-
-<div class="container" id="bazar"></div>
-<div class="container" id="blanqueria"></div>
-<div class="container" id="electronica"></div>
-<div class="container" id="electrodomesticos"></div>
-<div class="container" id="hogar"></div>
-<div class="container" id="indumentaria"></div>
+<section class="container" id="bazar"></section>
+<section class="container" id="blanqueria"></section>
+<section class="container" id="electronica"></section>
+<section class="container" id="electrodomesticos"></section>
+<section class="container" id="hogar"></section>
+<section class="container" id="indumentaria"></section>
 
 <footer>
     © 2025 El Rincón de Chiara | Seguinos en
