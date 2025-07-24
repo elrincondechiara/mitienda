@@ -292,7 +292,6 @@
     align-items:center;
     justify-content:center;
 ">
-
     <div id="modal-content" style="
         background:#fff;
         color:#333;
@@ -722,15 +721,29 @@ document.getElementById('modal-close').addEventListener('click', () => {
 
 <script>
 function mostrarGaleriaProducto(producto) {
-    const modal = document.getElementById('modal');
-    const modalBody = document.getElementById('modal-body');
+    const modal = document.getElementById('gallery-modal');
+    const modalContent = document.getElementById('gallery-content');
 
     // Limpiar contenido previo
-    modalBody.innerHTML = '';
+    modalContent.innerHTML = '';
 
     // Crear contenedor de galería
     const contenedorGaleria = document.createElement('div');
     contenedorGaleria.className = 'galeria-producto';
+    contenedorGaleria.style.textAlign = 'center';
+
+    // Título
+    const titulo = document.createElement('h3');
+    titulo.textContent = producto.nombre;
+    titulo.style.color = '#d81b60';
+    titulo.style.marginBottom = '0.5em';
+    contenedorGaleria.appendChild(titulo);
+
+    // Descripción larga
+    const descripcion = document.createElement('p');
+    descripcion.textContent = producto['descripción_larga'] || producto.descripcion || '';
+    descripcion.style.marginBottom = '1em';
+    contenedorGaleria.appendChild(descripcion);
 
     // Mostrar imágenes (hasta 4)
     const imagenes = [producto.imagen, producto.imagen1, producto.imagen2, producto.imagen3].filter(img => img);
@@ -740,18 +753,15 @@ function mostrarGaleriaProducto(producto) {
         img.src = src;
         img.alt = producto.nombre;
         img.style.width = '100%';
-        img.style.marginBottom = '0.5em';
+        img.style.maxWidth = '300px';
+        img.style.borderRadius = '8px';
+        img.style.margin = '0.5em';
         contenedorGaleria.appendChild(img);
     });
 
-    // Descripción larga
-    const descripcion = document.createElement('p');
-    descripcion.textContent = producto['descripción_larga'] || producto.descripcion || '';
-    contenedorGaleria.appendChild(descripcion);
-
     // Botón agregar al carrito
     const btnAgregar = document.createElement('button');
-    btnAgregar.className = 'modal-btn-whatsapp';
+    btnAgregar.className = 'modal-btn';
     btnAgregar.textContent = 'Agregar al carrito';
     btnAgregar.addEventListener('click', () => {
         agregarAlCarrito(producto.nombre, parseInt(producto.precio));
@@ -759,11 +769,19 @@ function mostrarGaleriaProducto(producto) {
     });
     contenedorGaleria.appendChild(btnAgregar);
 
-    modalBody.appendChild(contenedorGaleria);
+    // Agregar al modal de galería
+    modalContent.appendChild(contenedorGaleria);
 
+    // Mostrar modal de galería
     modal.style.display = 'flex';
 }
+
+// Asegúrate de tener el botón de cerrar:
+document.getElementById('gallery-close').addEventListener('click', () => {
+    document.getElementById('gallery-modal').style.display = 'none';
+});
 </script>
+
 
 <script>
 async function pagarConMercadoPago() {
