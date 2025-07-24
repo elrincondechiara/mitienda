@@ -187,8 +187,51 @@
 		margin-top: 1em;
 		width: 100%;
 	}
-	.container {
-		scroll-margin-top: 80px;
+	.modal-btn-mercadopago {
+		background: #009ee3; /* color Mercado Pago */
+		color: white;
+		border: none;
+		border-radius: 20px;
+		padding: 0.6em 1em;
+		cursor: pointer;
+		font-size: 1em;
+		font-weight: 500;
+		margin-top: 1em;
+		width: 100%;
+		transition: background 0.3s;
+	}
+
+	.modal-btn-mercadopago:hover {
+		background: #007bbd; /* color más oscuro al pasar el mouse */
+	}
+		.container {
+			scroll-margin-top: 80px;
+		}
+		
+		.modal-btn {
+		background: #d81b60; /* rosa institucional */
+		color: white;
+		border: none;
+		border-radius: 20px;
+		padding: 0.6em 1em;
+		cursor: pointer;
+		font-size: 1em;
+		font-weight: 500;
+		margin-top: 1em;
+		width: 100%; /* para que ocupe ancho completo */
+		transition: background 0.3s;
+	}
+	
+	.modal-btn:hover {
+		background: #b7154d;
+	}
+	
+	.modal-btn-cancel {
+		background: #999;
+	}
+	
+	.modal-btn-cancel:hover {
+		background: #777;
 	}
 </style>
 
@@ -212,17 +255,17 @@ window.addEventListener('scroll', () => {
     </svg>
 </a>
 
-<!-- Botón Mercado Pago -->
+<!-- Botón Mercado Pago
 <a href="javascript:void(0);" onclick="pagarConMercadoPago()" title="Pagar con Mercado Pago"
    class="floating-button" style="bottom: 90px; background: #009ee3;">
     <svg viewBox="0 0 24 24" fill="white" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
         <path d="M2 4C0.89 4 0 4.89 0 6V18C0 19.1 0.89 20 2 20H22C23.1 20 24 19.1 24 18V6C24 4.89 23.1 4 22 4H2ZM2 6H22V8H2V6ZM2 10H22V18H2V10ZM4 12V14H6V12H4ZM8 12V14H10V12H8Z"/>
     </svg>
-</a>
+</a> -->
 
 <!-- Botón Carrito -->
 <a href="javascript:void(0);" onclick="mostrarCarrito()" title="Ver carrito"
-   class="floating-button" style="bottom: 160px; background: #d81b60; position: fixed;">
+   class="floating-button" style="bottom: 90px; background: #d81b60; position: fixed;">
     <svg viewBox="0 0 24 24" fill="white" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
         <path d="M7 18C5.9 18 5 18.9 5 20C5 21.1 5.9 22 7 22C8.1 22 9 21.1 9 20C9 18.9 8.1 18 7 18ZM1 2V4H3L6.6 11.59L5.24 14.04C5.09 14.32 5 14.65 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.28 15 7.17 14.89 7.17 14.75L7.2 14.65L8.1 13H14.55C15.3 13 15.96 12.58 16.3 11.97L20.88 3.97C20.96 3.84 21 3.68 21 3.5C21 3.22 20.78 3 20.5 3H5.21L4.27 1H1ZM17 18C15.9 18 15 18.9 15 20C15 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18Z"/>
     </svg>
@@ -259,14 +302,64 @@ window.addEventListener('scroll', () => {
 </footer>
 
 <script>
+// ==========================
+// 🪐 UTILIDADES GENERALES
+// ==========================
+
+// Modal de alerta reutilizable
+async function alerta(mensaje) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('modal');
+        const modalBody = document.getElementById('modal-body');
+
+        modalBody.innerHTML = `<p style="text-align: center; font-size: 1.1em;">${mensaje}</p>`;
+        modal.style.display = 'flex';
+
+        const cerrar = () => {
+            modal.style.display = 'none';
+            document.getElementById('modal-close').removeEventListener('click', cerrar);
+            resolve();
+        };
+
+        document.getElementById('modal-close').addEventListener('click', cerrar);
+    });
+}
+
+// Modal de confirmación reutilizable
+function alertaConfirm(mensaje, callbackSi) {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modal-body');
+
+    modalBody.innerHTML = `
+        <p style="text-align: center; font-size: 1.1em;">${mensaje}</p>
+        <div style="margin-top: 1em; display: flex; justify-content: center; gap: 1em;">
+            <button id="modal-ok" class="modal-btn">Sí</button>
+            <button id="modal-cancel" class="modal-btn modal-btn-cancel">No</button>
+        </div>
+    `;
+    modal.style.display = 'flex';
+
+    document.getElementById('modal-ok').onclick = () => {
+        modal.style.display = 'none';
+        callbackSi();
+    };
+    document.getElementById('modal-cancel').onclick = () => {
+        modal.style.display = 'none';
+    };
+}
+
+// ==========================
+// 🛒 CARRITO
+// ==========================
+
 // Inicializar carrito si no existe
 if (!localStorage.getItem('carrito')) {
     localStorage.setItem('carrito', JSON.stringify([]));
 }
 
-// Función para actualizar el contador flotante
+// Actualizar contador flotante
 function actualizarContadorCarrito() {
-    const carrito = JSON.parse(localStorage.getItem('carrito'));
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     const contador = carrito.reduce((acc, item) => acc + item.cantidad, 0);
     const contadorElem = document.getElementById('carrito-contador');
     if (contadorElem) {
@@ -274,9 +367,9 @@ function actualizarContadorCarrito() {
     }
 }
 
-// Función para agregar producto al carrito
+// Agregar producto al carrito
 function agregarAlCarrito(nombre, precio) {
-    const carrito = JSON.parse(localStorage.getItem('carrito'));
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     const existente = carrito.find(p => p.nombre === nombre);
     if (existente) {
         existente.cantidad += 1;
@@ -285,17 +378,16 @@ function agregarAlCarrito(nombre, precio) {
     }
     localStorage.setItem('carrito', JSON.stringify(carrito));
     actualizarContadorCarrito();
-    alerta(nombre + " agregado al carrito");
+    alerta(`${nombre} agregado al carrito`);
 }
 
 // Mostrar carrito emergente
 function mostrarCarrito() {
     const modal = document.getElementById('modal');
     const modalBody = document.getElementById('modal-body');
-    modalBody.innerHTML = ''; // limpiar
+    modalBody.innerHTML = '';
 
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-
     if (carrito.length === 0) {
         modalBody.innerHTML = "<p style='text-align:center; padding:1em;'>El carrito está vacío.</p>";
         modal.style.display = 'flex';
@@ -303,7 +395,6 @@ function mostrarCarrito() {
     }
 
     let total = 0;
-
     carrito.forEach((item, index) => {
         total += item.precio * item.cantidad;
 
@@ -342,9 +433,7 @@ function mostrarCarrito() {
         btnRemove.className = 'modal-btn-remove';
         btnRemove.textContent = "✕";
         btnRemove.title = "Eliminar";
-        btnRemove.addEventListener('click', () => {
-            eliminarDelCarrito(index);
-        });
+        btnRemove.addEventListener('click', () => eliminarDelCarrito(index));
 
         row.appendChild(infoDiv);
         row.appendChild(price);
@@ -353,6 +442,7 @@ function mostrarCarrito() {
         modalBody.appendChild(row);
     });
 
+    // Total
     const totalDiv = document.createElement('div');
     totalDiv.style.textAlign = 'right';
     totalDiv.style.fontWeight = 'bold';
@@ -360,136 +450,80 @@ function mostrarCarrito() {
     totalDiv.textContent = `Total: $${total}`;
     modalBody.appendChild(totalDiv);
 
+    // Botón WhatsApp
     const btnWhats = document.createElement('button');
     btnWhats.className = 'modal-btn-whatsapp';
     btnWhats.textContent = "Enviar pedido por WhatsApp";
-    btnWhats.addEventListener('click', () => {
-        enviarPedidoWhatsApp(carrito);
-    });
-
+    btnWhats.addEventListener('click', () => enviarPedidoWhatsApp(carrito));
     modalBody.appendChild(btnWhats);
 
-    modal.style.display = 'flex';
-}
-
-function actualizarCantidadCarrito(indice, nuevaCantidad) {
-    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    carrito[indice].cantidad = nuevaCantidad;
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    actualizarContadorCarrito();
-    mostrarCarrito(); // refrescar la vista
-}
-
-function eliminarDelCarrito(indice) {
-    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    carrito.splice(indice, 1); // eliminar producto
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    actualizarContadorCarrito();
-    mostrarCarrito(); // refrescar vista
-}
-
-function mostrarContenidoModal(contenidoHTML) {
-    const modal = document.getElementById('modal');
-    const modalMessage = document.getElementById('modal-message');
-    const modalOk = document.getElementById('modal-ok');
-    const modalCancel = document.getElementById('modal-cancel');
-
-    modalMessage.innerHTML = '';
-    modalMessage.appendChild(contenidoHTML);
-
-    modalOk.style.display = 'none';
-
-    modalCancel.style.display = 'inline-block';
-    modalCancel.textContent = 'Cerrar';
-
-    // Remover listeners anteriores
-    const newModalCancel = modalCancel.cloneNode(true);
-    modalCancel.parentNode.replaceChild(newModalCancel, modalCancel);
-
-    newModalCancel.addEventListener('click', () => {
-        modal.style.display = 'none';
+    // Botón Mercado Pago
+    const btnMP = document.createElement('button');
+    btnMP.className = 'modal-btn-mercadopago';
+    btnMP.textContent = "Pagar con Mercado Pago";
+    btnMP.addEventListener('click', () => {
+        alertaConfirm(
+            "Serás redirigido a Mercado Pago para completar tu compra.",
+            async () => {
+                modal.style.display = 'none';
+                await pagarConMercadoPago();
+            }
+        );
     });
+    modalBody.appendChild(btnMP);
 
     modal.style.display = 'flex';
-}
-
-
-function enviarPedidoWhatsApp(carrito) {
-    let mensaje = "Hola, quiero comprar:\n";
-    carrito.forEach(item => {
-        mensaje += `• ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad}\n`;
-    });
-    const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
-    mensaje += `\nTotal: $${total}`;
-
-    const texto = encodeURIComponent(mensaje);
-    window.open(`https://wa.me/5491150648790?text=${texto}`, "_blank");
-}
-
-// Inicializar contador al cargar
-document.addEventListener('DOMContentLoaded', actualizarContadorCarrito);
-
-// Función para vaciar carrito
-async function vaciarCarrito() {
-    const respuesta = await confirmar("¿Estás seguro de que deseas vaciar el carrito?");
-    if (respuesta) {
-        localStorage.setItem('carrito', JSON.stringify([]));
-        actualizarContadorCarrito();
-        alerta("El carrito ha sido vaciado.");
-    }
-}
-
-// Modal reutilizable
-function mostrarModal(contenidoHTML) {
-    const modal = document.getElementById('modal');
-    const modalBody = document.getElementById('modal-body');
-
-    modalBody.innerHTML = ''; // Limpia contenido previo
-    modalBody.appendChild(contenidoHTML); // Inserta contenido
-
-    modal.style.display = 'flex';
-}
-
-// Reemplazo de alert con modal
-async function alerta(mensaje) {
-    return new Promise((resolve) => {
-        const modal = document.getElementById('modal');
-        const modalBody = document.getElementById('modal-body');
-
-        modalBody.innerHTML = `<p style="text-align: center; font-size: 1.1em;">${mensaje}</p>`;
-
-        modal.style.display = 'flex';
-
-        const cerrar = () => {
-            modal.style.display = 'none';
-            document.getElementById('modal-close').removeEventListener('click', cerrar);
-            resolve();
-        };
-
-        document.getElementById('modal-close').addEventListener('click', cerrar);
-    });
-}
-
-
-// Reemplazo de confirm
-async function confirmar(mensaje) {
-    return await mostrarModal(mensaje, true);
-}
+	}
+	
+	// Actualizar cantidad de un producto en el carrito
+	function actualizarCantidadCarrito(indice, nuevaCantidad) {
+		const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+		carrito[indice].cantidad = nuevaCantidad;
+		localStorage.setItem('carrito', JSON.stringify(carrito));
+		actualizarContadorCarrito();
+		mostrarCarrito();
+	}
+	
+	// Eliminar producto del carrito
+	function eliminarDelCarrito(indice) {
+		const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+		carrito.splice(indice, 1);
+		localStorage.setItem('carrito', JSON.stringify(carrito));
+		actualizarContadorCarrito();
+		mostrarCarrito();
+	}
+	
+	// Enviar pedido por WhatsApp
+	function enviarPedidoWhatsApp(carrito) {
+		let mensaje = "Hola, quiero comprar:\n";
+		carrito.forEach(item => {
+			mensaje += `• ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad}\n`;
+		});
+		const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+		mensaje += `\nTotal: $${total}`;
+	
+		const texto = encodeURIComponent(mensaje);
+		window.open(`https://wa.me/5491150648790?text=${texto}`, "_blank");
+	}
+	
+	// ==========================
+	// 🟢 INICIALIZACIÓN
+	// ==========================
+	
+	// Inicializar contador al cargar
+	document.addEventListener('DOMContentLoaded', () => {
+		actualizarContadorCarrito();
+	
+		// Configurar cierre de modal al presionar ✕
+		const modalClose = document.getElementById('modal-close');
+		if (modalClose) {
+			modalClose.addEventListener('click', () => {
+				document.getElementById('modal').style.display = 'none';
+			});
+		}
+	});
 </script>
 
-<script>
-// Delegación de eventos para todos los botones de "Agregar al carrito"
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('modal');
-    const modalClose = document.getElementById('modal-close');
-
-    if (modal && modalClose) {
-        modalClose.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    }
-});
-</script>
 
 <div id="modal" style="
     display:none;
