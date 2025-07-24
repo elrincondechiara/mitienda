@@ -68,8 +68,87 @@
 		transform: scale(1.05);
 		opacity: 0.3; /* más transparente al pasar el mouse */
 	}
-
+	.floating-button {
+		position: fixed;
+		right: 20px;
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		background: #ffffff;
+		box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		z-index: 100;
+		transition: transform 0.3s, background 0.3s, opacity 0.3s;
+	}
+	
+	.floating-button:hover {
+		transform: scale(1.1);
+		background: #f0f0f0;
+	}
+	
+	.floating-button.scrolled {
+		opacity: 0.5;
+	}
+	
+	.floating-button svg {
+		width: 30px;
+		height: 30px;
+	}
+	
+	#carrito-contador {
+		position: absolute;
+		top: 5px;
+		right: 5px;
+		background: #f44336;
+		color: white;
+		font-size: 0.7em;
+		border-radius: 50%;
+		width: 20px;
+		height: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 </style>
+
+<script>
+window.addEventListener('scroll', () => {
+  const botones = document.querySelectorAll('.floating-button');
+  if(window.scrollY > 50) {
+    botones.forEach(btn => btn.classList.add('scrolled'));
+  } else {
+    botones.forEach(btn => btn.classList.remove('scrolled'));
+  }
+});
+</script>
+
+<!-- Botón WhatsApp -->
+<a href="https://wa.me/5491150648790" target="_blank" title="Escribinos por WhatsApp"
+   class="floating-button" style="bottom: 20px; background: #25D366;">
+    <svg viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.82.75 5.46 2.04 7.75L.5 31.5l7.95-2.02C10.55 29.25 13.18 30 16 30c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5zM16 28c-2.42 0-4.68-.66-6.62-1.8l-.47-.28-4.72 1.19 1.21-4.6-.31-.48C4.61 19.66 4 17.88 4 16 4 9.38 9.38 4 16 4s12 5.38 12 12-5.38 12-12 12zm6.02-8.59c-.33-.17-1.94-.96-2.24-1.07-.3-.11-.52-.17-.74.17s-.85 1.07-1.04 1.29c-.19.22-.38.25-.71.08-.33-.17-1.38-.51-2.63-1.63-.97-.87-1.62-1.94-1.81-2.27-.19-.33-.02-.51.14-.67.15-.15.33-.38.49-.57.16-.19.22-.33.33-.55.11-.22.06-.41-.03-.58-.09-.17-.74-1.78-1.02-2.44-.27-.65-.55-.56-.74-.57l-.63-.01c-.22 0-.58.08-.89.41-.3.33-1.17 1.14-1.17 2.77 0 1.63 1.19 3.2 1.36 3.42.17.22 2.35 3.6 5.7 5.05.8.35 1.42.56 1.9.71.8.25 1.53.22 2.11.13.64-.1 1.94-.79 2.21-1.56.27-.77.27-1.43.19-1.56-.08-.13-.3-.21-.63-.38z"/>
+    </svg>
+</a>
+
+<!-- Botón Mercado Pago (tarjeta) -->
+<a href="javascript:void(0);" onclick="pagarConMercadoPago()" title="Pagar con Mercado Pago"
+   class="floating-button" style="bottom: 90px; background: #009ee3;">
+    <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 4C0.89 4 0 4.89 0 6V18C0 19.1 0.89 20 2 20H22C23.1 20 24 19.1 24 18V6C24 4.89 23.1 4 22 4H2ZM2 6H22V8H2V6ZM2 10H22V18H2V10ZM4 12V14H6V12H4ZM8 12V14H10V12H8Z"/>
+    </svg>
+</a>
+
+<!-- Botón Carrito -->
+<a href="javascript:void(0);" onclick="mostrarCarrito()" title="Ver carrito"
+   class="floating-button" style="bottom: 160px; background: #d81b60;">
+    <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 18C5.9 18 5 18.9 5 20C5 21.1 5.9 22 7 22C8.1 22 9 21.1 9 20C9 18.9 8.1 18 7 18ZM1 2V4H3L6.6 11.59L5.24 14.04C5.09 14.32 5 14.65 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.28 15 7.17 14.89 7.17 14.75L7.2 14.65L8.1 13H14.55C15.3 13 15.96 12.58 16.3 11.97L20.88 3.97C20.96 3.84 21 3.68 21 3.5C21 3.22 20.78 3 20.5 3H5.21L4.27 1H1ZM17 18C15.9 18 15 18.9 15 20C15 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18Z"/>
+    </svg>
+    <span id="carrito-contador">0</span>
+</a>
 </head>
 <body>
 <header>
@@ -98,9 +177,6 @@
     <a href="https://www.instagram.com/elrincondechiara" target="_blank">Instagram</a> |
     <a href="mailto:elrincondechiara@gmail.com">Email</a>
 </footer>
-
-<a href="https://wa.me/5491150648790" class="whatsapp-float" target="_blank" title="Escribinos por WhatsApp">💬</a>
-
 
 <script>
 // Inicializar carrito si no existe
@@ -142,12 +218,19 @@ function mostrarCarrito() {
         mensaje += `• ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad}\n`;
         total += item.precio * item.cantidad;
     });
-    mensaje += `\nTotal: $${total}\n\n¿Deseas enviar este pedido por WhatsApp?`;
+    mensaje += `\nTotal: $${total}\n\n¿Deseas enviar este pedido por WhatsApp?\nO puedes vaciar el carrito si lo deseas.`;
 
     confirmar(mensaje).then((respuesta) => {
         if (respuesta) {
             const texto = encodeURIComponent(`Hola, quiero comprar:\n${mensaje}`);
             window.open(`https://wa.me/5491150648790?text=${texto}`, "_blank");
+        } else {
+            // Al cancelar, preguntar si desea vaciar el carrito
+            confirmar("¿Deseas vaciar el carrito?").then((confirmVaciar) => {
+                if (confirmVaciar) {
+                    vaciarCarrito();
+                }
+            });
         }
     });
 }
@@ -224,19 +307,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-
-<!-- Botón flotante de carrito -->
-<a href="javascript:void(0);" class="whatsapp-float" onclick="mostrarCarrito()" title="Ver carrito" style="bottom: 100px;">🛒
-    <span id="carrito-contador" style="font-size:0.5em; position:absolute; top:5px; right:5px; background:#f44336; color:white; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center;">0</span>
-</a>
-
-<!-- Botón flotante para vaciar carrito -->
-<a href="javascript:void(0);" onclick="vaciarCarrito()" class="whatsapp-float" title="Vaciar carrito" style="bottom: 170px; background:#f44336;">🗑️</a>
-
-<!-- Botón de pago Mercado Pago -->
-<a href="javascript:void(0);" onclick="pagarConMercadoPago()" class="whatsapp-float" title="Pagar con Mercado Pago" style="bottom: 240px; background:#009ee3;">💳</a>
-
-   
+  
 <div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
     <div style="background:white; color:#880e4f; max-width:90%; width:300px; border-radius:8px; padding:1em; text-align:center; font-family:'Segoe UI', sans-serif; position:relative;">
         <h3 id="modal-title" style="margin-top:0;">El Rincón de Chiara</h3>
