@@ -188,10 +188,13 @@ if (!localStorage.getItem('carrito')) {
 function actualizarContadorCarrito() {
     const carrito = JSON.parse(localStorage.getItem('carrito'));
     const contador = carrito.reduce((acc, item) => acc + item.cantidad, 0);
-    document.getElementById('carrito-contador').innerText = contador;
+    const contadorElem = document.getElementById('carrito-contador');
+    if (contadorElem) {
+        contadorElem.innerText = contador;
+    }
 }
 
-// Función para agregar producto
+// Función para agregar producto al carrito
 function agregarAlCarrito(nombre, precio) {
     const carrito = JSON.parse(localStorage.getItem('carrito'));
     const existente = carrito.find(p => p.nombre === nombre);
@@ -207,34 +210,167 @@ function agregarAlCarrito(nombre, precio) {
 
 // Mostrar carrito emergente
 function mostrarCarrito() {
-    const carrito = JSON.parse(localStorage.getItem('carrito'));
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+
     if (carrito.length === 0) {
-        alerta("El carrito está vacío.");
+        // Mostrar mensaje de carrito vacío con botón cerrar
+        const contenido = document.createElement('div');
+        contenido.textContent = "El carrito está vacío.";
+        contenido.style.textAlign = "center";
+        contenido.style.padding = "20px";
+        mostrarContenidoModal(contenido);
         return;
     }
-    let mensaje = "🛒 Tu carrito:\n";
+
+    const contenido = document.createElement('div');
+    contenido.style.textAlign = "left";
+
+    const lista = document.createElement('ul');
+    lista.style.listStyle = "none";
+    lista.style.padding = "0";
+
     let total = 0;
-    carrito.forEach(item => {
-        mensaje += `• ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad}\n`;
+
+    carrito.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.style.marginBottom = "15px";
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.style.alignItems = "center";
+
+        // Div para texto producto
+        const infoDiv = document.createElement('div');
+        infoDiv.style.flex = "1";
+
+        const nombreDiv = document.createElement('div');
+        nombreDiv.textContent = item.nombre;
+
+        // Input cantidad
+        const inputCantidad = document.createElement('input');
+        inputCantidad.type = 'number';
+        inputCantidad.min = '1';
+        inputCantidad.value = item.cantidad;
+        inputCantidad.style.width = '50px';
+        inputCantidad.style.marginTop = '5px';
+        inputCantidad.addEventListener('change', (e) => {
+            const nuevaCantidad = parseInt(e.target.value);
+            if (isNaN(nuevaCantidad) || nuevaCantidad < 1) {
+                e.target.value = item.cantidad; // revertir si inválido
+                return;
+            }
+            actualizarCantidadCarrito(index, nuevaCantidad);
+        });
+
+        infoDiv.appendChild(nombreDiv);
+        infoDiv.appendChild(inputCantidad);
+
+        // Precio
+        const precioDiv = document.createElement('div');
+        precioDiv.textContent = `$${item.precio * item.cantidad}`;
+        precioDiv.style.marginLeft = "10px";
+        precioDiv.style.minWidth = "80px";
+        precioDiv.style.textAlign = "right";
+
+        // Botón eliminar
+        const btnEliminar = document.createElement('button');
+        btnEliminar.textContent = "Eliminar";
+        btnEliminar.style.marginLeft = "10px";
+        btnEliminar.style.backgroundColor = "#f44336";
+        btnEliminar.style.color = "white";
+        btnEliminar.style.border = "none";
+        btnEliminar.style.borderRadius = "5px";
+        btnEliminar.style.cursor = "pointer";
+        btnEliminar.addEventListener('click', () => {
+            eliminarDelCarrito(index);
+        });
+
+        li.appendChild(infoDiv);
+        li.appendChild(precioDiv);
+        li.appendChild(btnEliminar);
+        lista.appendChild(li);
+
         total += item.precio * item.cantidad;
     });
-    mensaje += `\nTotal: $${total}\n\n¿Deseas enviar este pedido por WhatsApp?\nO puedes vaciar el carrito si lo deseas.`;
 
-    confirmar(mensaje).then((respuesta) => {
-        if (respuesta) {
-            const texto = encodeURIComponent(`Hola, quiero comprar:\n${mensaje}`);
-            window.open(`https://wa.me/5491150648790?text=${texto}`, "_blank");
-        } else {
-            // Al cancelar, preguntar si desea vaciar el carrito
-            confirmar("¿Deseas vaciar el carrito?").then((confirmVaciar) => {
-                if (confirmVaciar) {
-                    vaciarCarrito();
-                }
-            });
-        }
+    contenido.appendChild(lista);
+
+    const totalP = document.createElement('p');
+    totalP.textContent = `Total: $${total}`;
+    totalP.style.fontWeight = "bold";
+    totalP.style.textAlign = "right";
+    contenido.appendChild(totalP);
+
+    // Botón para enviar pedido por WhatsApp
+    const btnWhats = document.createElement('button');
+    btnWhats.textContent = "Enviar pedido por WhatsApp";
+    btnWhats.style.backgroundColor = "#25d366";
+    btnWhats.style.color = "white";
+    btnWhats.style.border = "none";
+    btnWhats.style.borderRadius = "8px";
+    btnWhats.style.padding = "10px 20px";
+    btnWhats.style.cursor = "pointer";
+    btnWhats.style.display = "block";
+    btnWhats.style.marginTop = "10px";
+    btnWhats.addEventListener('click', () => {
+        enviarPedidoWhatsApp(carrito);
     });
+    contenido.appendChild(btnWhats);
+
+    mostrarContenidoModal(contenido);
 }
 
+function actualizarCantidadCarrito(indice, nuevaCantidad) {
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    carrito[indice].cantidad = nuevaCantidad;
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    actualizarContadorCarrito();
+    mostrarCarrito(); // refrescar la vista
+}
+
+function eliminarDelCarrito(indice) {
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    carrito.splice(indice, 1); // eliminar producto
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    actualizarContadorCarrito();
+    mostrarCarrito(); // refrescar vista
+}
+
+function mostrarContenidoModal(contenidoHTML) {
+    const modal = document.getElementById('modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOk = document.getElementById('modal-ok');
+    const modalCancel = document.getElementById('modal-cancel');
+
+    modalMessage.innerHTML = '';
+    modalMessage.appendChild(contenidoHTML);
+
+    modalOk.style.display = 'none';
+
+    modalCancel.style.display = 'inline-block';
+    modalCancel.textContent = 'Cerrar';
+
+    // Remover listeners anteriores
+    const newModalCancel = modalCancel.cloneNode(true);
+    modalCancel.parentNode.replaceChild(newModalCancel, modalCancel);
+
+    newModalCancel.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    modal.style.display = 'flex';
+}
+
+function enviarPedidoWhatsApp(carrito) {
+    let mensaje = "Hola, quiero comprar:\n";
+    carrito.forEach(item => {
+        mensaje += `• ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad}\n`;
+    });
+    const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+    mensaje += `\nTotal: $${total}`;
+
+    const texto = encodeURIComponent(mensaje);
+    window.open(`https://wa.me/5491150648790?text=${texto}`, "_blank");
+}
 
 // Inicializar contador al cargar
 document.addEventListener('DOMContentLoaded', actualizarContadorCarrito);
@@ -248,9 +384,7 @@ async function vaciarCarrito() {
         alerta("El carrito ha sido vaciado.");
     }
 }
-</script>
 
-<script>
 // Modal reutilizable
 function mostrarModal(mensaje, esConfirmacion = false) {
     return new Promise((resolve) => {
@@ -261,23 +395,25 @@ function mostrarModal(mensaje, esConfirmacion = false) {
 
         modalMessage.textContent = mensaje;
         modal.style.display = 'flex';
+
         modalCancel.style.display = esConfirmacion ? 'inline-block' : 'none';
+        modalOk.style.display = 'inline-block';
 
-        function cerrar(resultado) {
+        // Removemos listeners previos para evitar duplicados
+        modalOk.onclick = null;
+        modalCancel.onclick = null;
+
+        modalOk.onclick = () => {
             modal.style.display = 'none';
-            modalOk.removeEventListener('click', onOk);
-            modalCancel.removeEventListener('click', onCancel);
-            document.removeEventListener('keydown', onKey);
-            resolve(resultado);
-        }
+            resolve(true);
+        };
 
-        function onOk() { cerrar(true); }
-        function onCancel() { cerrar(false); }
-        function onKey(e) { if (e.key === "Escape") cerrar(false); }
+        modalCancel.onclick = () => {
+            modal.style.display = 'none';
+            resolve(false);
+        };
 
-        modalOk.addEventListener('click', onOk);
-        modalCancel.addEventListener('click', onCancel);
-        document.addEventListener('keydown', onKey);
+        // Si es confirmación, el botón cancelar aparece y funciona, si no, no
     });
 }
 
@@ -288,10 +424,10 @@ async function alerta(mensaje) {
 
 // Reemplazo de confirm
 async function confirmar(mensaje) {
-    const respuesta = await mostrarModal(mensaje, true);
-    return respuesta;
+    return await mostrarModal(mensaje, true);
 }
 </script>
+
 
 <script>
 // Delegación de eventos para todos los botones de "Agregar al carrito"
@@ -307,7 +443,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-  
 <div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
     <div style="background:white; color:#880e4f; max-width:90%; width:300px; border-radius:8px; padding:1em; text-align:center; font-family:'Segoe UI', sans-serif; position:relative;">
         <h3 id="modal-title" style="margin-top:0;">El Rincón de Chiara</h3>
