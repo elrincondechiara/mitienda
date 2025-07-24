@@ -279,21 +279,44 @@ window.addEventListener('scroll', () => {
 	<p>Decorá tu hogar con amor y estilo</p>
 </header>
 
-<nav>
-    <a href="#bazar">Bazar</a>
-    <a href="#blanqueria">Blanquería</a>
-    <a href="#electronica">Electrónica</a>
-    <a href="#electrodomesticos">Electrodomésticos</a>
-    <a href="#hogar">Hogar</a>
-    <a href="#indumentaria">Indumentaria</a>
-</nav>
+<nav id="categorias-nav"></nav>
+<div id="categorias-contenedor"></div>
 
-<section class="container" id="bazar"></section>
-<section class="container" id="blanqueria"></section>
-<section class="container" id="electronica"></section>
-<section class="container" id="electrodomesticos"></section>
-<section class="container" id="hogar"></section>
-<section class="container" id="indumentaria"></section>
+<!-- Modal de galería -->
+<div id="gallery-modal" style="
+    display:none;
+    position:fixed;
+    top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.8);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+">
+    <div style="
+        background:#fff;
+        max-width:95%;
+        width:400px;
+        border-radius:12px;
+        padding:1em;
+        position:relative;
+        font-family:'Segoe UI', sans-serif;
+        max-height:90vh;
+        overflow-y:auto;
+    ">
+        <button id="gallery-close" style="
+            position:absolute;
+            top:10px;
+            right:10px;
+            background:transparent;
+            border:none;
+            font-size:1.5em;
+            color:#888;
+            cursor:pointer;
+        ">&times;</button>
+        <div id="gallery-content"></div>
+    </div>
+</div>
+
 
 <footer>
     © 2025 El Rincón de Chiara | Seguinos en
@@ -524,6 +547,19 @@ function mostrarCarrito() {
 	});
 </script>
 
+<script>
+// Para cerrar el modal con el botón de cierre
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modal-close');
+
+    if (modal && modalClose) {
+        modalClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+});
+</script>
 
 <div id="modal" style="
     display:none;
@@ -616,14 +652,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
     function mostrarProductos(data) {
-        const contenedores = {
-			bazar: document.getElementById('bazar'),
-            blanqueria: document.getElementById('blanqueria'),
-            electronica: document.getElementById('electronica'),
-            electrodomesticos: document.getElementById('electrodomesticos'),
-            hogar: document.getElementById('hogar'),
-			indumentaria: document.getElementById('indumentaria')
-        };
+        const contenedores = {};
+        document.querySelectorAll('.container').forEach(section => {
+            contenedores[section.id] = section;
+        });
 
         data.forEach(producto => {
             const categoria = producto.categoria?.toLowerCase().trim();
@@ -634,6 +666,7 @@ document.addEventListener('DOMContentLoaded', function() {
             div.setAttribute('data-nombre', producto.nombre);
             div.setAttribute('data-precio', producto.precio);
 
+            // Crear estructura del producto
             div.innerHTML = `
                 <img src="${producto.imagen}" alt="${producto.nombre}" title="${producto.nombre} - $${producto.precio} - ${producto.descripcion}">
                 <h3>${producto.nombre}</h3>
@@ -642,10 +675,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 <a href="javascript:void(0);" class="buy-button">Agregar al carrito</a>
             `;
 
+            // Agregar listener para abrir galería
+            const img = div.querySelector('img');
+            if (img) {
+                img.style.cursor = 'pointer';
+                img.addEventListener('click', () => {
+                    mostrarGaleriaProducto(producto);
+                });
+            }
+
             contenedores[categoria].appendChild(div);
         });
 
-        // Delegar eventos a los botones agregados
+        // Delegar eventos a los botones de "Agregar al carrito"
         document.querySelectorAll('.buy-button').forEach(boton => {
             boton.addEventListener('click', function() {
                 const producto = boton.closest('.product');
@@ -657,6 +699,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
 
 <script>
 let lastScroll = 0;
@@ -681,6 +724,84 @@ window.addEventListener('scroll', () => {
 <script>
 document.getElementById('modal-close').addEventListener('click', () => {
     document.getElementById('modal').style.display = 'none';
+});
+</script>
+
+<script>
+function mostrarGaleriaProducto(producto) {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modal-body');
+
+    // Limpiar contenido previo
+    modalBody.innerHTML = '';
+
+    // Crear contenedor de galería
+    const contenedorGaleria = document.createElement('div');
+    contenedorGaleria.className = 'galeria-producto';
+
+    // Mostrar imágenes (hasta 4)
+    const imagenes = [producto.imagen, producto.imagen1, producto.imagen2, producto.imagen3].filter(img => img);
+
+    imagenes.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = producto.nombre;
+        img.style.width = '100%';
+        img.style.marginBottom = '0.5em';
+        contenedorGaleria.appendChild(img);
+    });
+
+    // Descripción larga
+    const descripcion = document.createElement('p');
+    descripcion.textContent = producto['descripción_larga'] || producto.descripcion || '';
+    contenedorGaleria.appendChild(descripcion);
+
+    // Botón agregar al carrito
+    const btnAgregar = document.createElement('button');
+    btnAgregar.className = 'modal-btn-whatsapp';
+    btnAgregar.textContent = 'Agregar al carrito';
+    btnAgregar.addEventListener('click', () => {
+        agregarAlCarrito(producto.nombre, parseInt(producto.precio));
+        modal.style.display = 'none';
+    });
+    contenedorGaleria.appendChild(btnAgregar);
+
+    modalBody.appendChild(contenedorGaleria);
+
+    modal.style.display = 'flex';
+}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const urlCategorias = 'https://opensheet.elk.sh/12ij43IAUUSJDJTKKLJ9xxJ6hBUxKN0YOAcVj2PUOry8/Categorias'; // reemplazar con el tuyo
+
+    fetch(urlCategorias)
+        .then(response => response.json())
+        .then(data => construirCategorias(data))
+        .catch(error => console.error("Error cargando categorías:", error));
+
+    function construirCategorias(data) {
+        const nav = document.getElementById('categorias-nav');
+        const contenedor = document.getElementById('categorias-contenedor');
+
+        data.forEach(categoriaObj => {
+            const categoria = categoriaObj.categoria?.toLowerCase().trim();
+            const categoriaCapitalizada = categoria.charAt(0).toUpperCase() + categoria.slice(1);
+
+            // Crear link de navegación
+            const link = document.createElement('a');
+            link.href = `#${categoria}`;
+            link.textContent = categoriaCapitalizada;
+            nav.appendChild(link);
+
+            // Crear sección de contenedor
+            const section = document.createElement('section');
+            section.className = 'container';
+            section.id = categoria;
+            contenedor.appendChild(section);
+        });
+    }
 });
 </script>
 
