@@ -566,7 +566,7 @@ function mostrarCarrito() {
     btnMP.textContent = "Pagar con Mercado Pago";
     btnMP.addEventListener('click', () => {
         alertaConfirm(
-            "Serás redirigido a Mercado Pago para completar tu compra. Luego, enviarnos el comprobante de pago por Whatsapp para coordinar el envío. ¡Muchas gracias!",
+            "Serás redirigido a Mercado Pago para completar tu compra. Luego, envianos el comprobante de pago por Whatsapp para coordinar el envío. ¡Muchas gracias!",
             async () => {
                 modal.style.display = 'none';
                 await pagarConMercadoPago();
