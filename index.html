@@ -320,6 +320,47 @@
     </div>
 </div>
 
+<div id="cliente-formulario-modal" style="
+    display:none;
+    position:fixed;
+    top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5);
+    z-index:999;
+    align-items:center;
+    justify-content:center;
+">
+    <div style="
+        background:#fff;
+        max-width:95%;
+        width:400px;
+        border-radius:12px;
+        padding:1em;
+        position:relative;
+        font-family:'Segoe UI', sans-serif;
+        max-height:90vh;
+        overflow-y:auto;
+    ">
+        <button onclick="cerrarFormularioCliente()" style="
+            position:absolute;
+            top:10px;
+            right:10px;
+            background:transparent;
+            border:none;
+            font-size:1.5em;
+            color:#888;
+            cursor:pointer;
+        ">&times;</button>
+        <h3 style="margin:0; text-align:center; font-weight:500; color:#d81b60;">Tus Datos para la Entrega</h3>
+        <form id="cliente-formulario" style="display:flex; flex-direction:column; gap:0.5em; margin-top:1em;">
+            <input type="text" id="cliente-nombre" placeholder="Nombre completo" required>
+            <input type="tel" id="cliente-telefono" placeholder="Teléfono" required>
+            <input type="text" id="cliente-direccion" placeholder="Dirección" required>
+            <input type="email" id="cliente-email" placeholder="Email (opcional)">
+            <textarea id="cliente-comentarios" placeholder="Comentarios (opcional)"></textarea>
+            <button type="submit" class="modal-btn">Enviar por WhatsApp</button>
+        </form>
+    </div>
+</div>
 
 <!-- Botón WhatsApp -->
 <a href="https://wa.me/5491150648790" target="_blank" title="Escribinos por WhatsApp"
@@ -525,7 +566,7 @@ function mostrarCarrito() {
     btnMP.textContent = "Pagar con Mercado Pago";
     btnMP.addEventListener('click', () => {
         alertaConfirm(
-            "Serás redirigido a Mercado Pago para completar tu compra.",
+            "Serás redirigido a Mercado Pago para completar tu compra. Luego, enviarnos el comprobante de pago por Whatsapp para coordinar el envío. ¡Muchas gracias!",
             async () => {
                 modal.style.display = 'none';
                 await pagarConMercadoPago();
@@ -821,6 +862,62 @@ async function pagarConMercadoPago() {
 }
 </script>
 
+<script>
+// Abre el formulario de cliente
+function abrirFormularioCliente() {
+    document.getElementById('cliente-formulario-modal').style.display = 'flex';
+}
+
+// Cierra el formulario de cliente
+function cerrarFormularioCliente() {
+    document.getElementById('cliente-formulario-modal').style.display = 'none';
+}
+
+// Maneja el envío del formulario y redirige a WhatsApp con el mensaje
+document.getElementById('cliente-formulario').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById('cliente-nombre').value.trim();
+    const telefono = document.getElementById('cliente-telefono').value.trim();
+    const direccion = document.getElementById('cliente-direccion').value.trim();
+    const email = document.getElementById('cliente-email').value.trim();
+    const comentarios = document.getElementById('cliente-comentarios').value.trim();
+
+    const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+    if (carrito.length === 0) {
+        alert('Tu carrito está vacío.');
+        return;
+    }
+
+    let mensaje = `🛒 *Nuevo pedido El Rincón de Chiara*%0A`;
+    mensaje += `👤 *Cliente:* ${nombre}%0A`;
+    mensaje += `📞 *Teléfono:* ${telefono}%0A`;
+    mensaje += `🏠 *Dirección:* ${direccion}%0A`;
+    if (email) mensaje += `📧 *Email:* ${email}%0A`;
+    if (comentarios) mensaje += `📝 *Comentarios:* ${comentarios}%0A`;
+    mensaje += `%0A*Detalle del pedido:*%0A`;
+
+    let total = 0;
+    carrito.forEach(item => {
+        mensaje += `• ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad}%0A`;
+        total += item.precio * item.cantidad;
+    });
+    mensaje += `%0A💰 *Total:* $${total}%0A`;
+
+    // Número de WhatsApp al que se enviará el pedido
+    const telefonoVendedor = "5491150648790";
+    const url = `https://wa.me/${telefonoVendedor}?text=${mensaje}`;
+
+    window.open(url, '_blank');
+    cerrarFormularioCliente();
+    limpiarCarrito(); // Opcional: limpia el carrito luego del envío
+});
+
+// Llamar a abrirFormularioCliente() luego del pago o al confirmar compra:
+function finalizarCompra() {
+    abrirFormularioCliente();
+}
+</script>
 
 </body>
 
