@@ -787,7 +787,7 @@ function mostrarGaleriaProducto(producto) {
     contenedorGaleria.appendChild(descripcion);
 
     // Mostrar imágenes (hasta 4)
-    const imagenes = [producto.imagen, producto.imagen1, producto.imagen2, producto.imagen3].filter(img => img);
+    const imagenes = [producto.imagen, producto.imagen1, producto.imagen2, producto.imagen3,, producto.imagen4, producto.imagen5].filter(img => img);
 
     imagenes.forEach(src => {
         const img = document.createElement('img');
