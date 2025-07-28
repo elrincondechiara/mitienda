@@ -833,9 +833,11 @@ function mostrarGaleriaProducto(producto) {
         img.src = src;
         img.alt = producto.nombre;
         img.style.width = '100%';
-        img.style.maxWidth = '300px';
-        img.style.borderRadius = '8px';
-        img.style.margin = '0.5em';
+		img.style.maxWidth = '300px';
+		img.style.borderRadius = '16px'; // más suavizado
+		img.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+		img.style.margin = '0.5em auto';
+		img.style.display = 'block';
         contenedorGaleria.appendChild(img);
     });
 
