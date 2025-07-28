@@ -688,37 +688,62 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     function mostrarProductos(data) {
-        const contenedores = {};
-        document.querySelectorAll('.container').forEach(section => {
-            contenedores[section.id] = section;
-        });
+    const contenedores = {};
+    document.querySelectorAll('.container').forEach(section => {
+        contenedores[section.id] = section;
+    });
 
-        data.forEach(producto => {
-            const categoria = producto.categoria?.toLowerCase().trim();
-            if (!contenedores[categoria]) return;
+    data.forEach(producto => {
+        const categoria = producto.categoria?.toLowerCase().trim();
+        if (!contenedores[categoria]) return;
 
-            const div = document.createElement('div');
-            div.className = 'product';
-            div.setAttribute('data-nombre', producto.nombre);
-            div.setAttribute('data-precio', producto.precio);
+        const sinStock = !producto.stock || parseInt(producto.stock) <= 0;
 
-            div.innerHTML = `
-                <img src="${producto.imagen}?v=${Date.now()}" alt="${producto.nombre}" title="${producto.nombre} - $${producto.precio} - ${producto.descripcion}">
-                <h3>${producto.nombre}</h3>
-                <p>$${producto.precio}</p>
-            `;
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.setAttribute('data-nombre', producto.nombre);
+        div.setAttribute('data-precio', producto.precio);
 
-            const img = div.querySelector('img');
-            if (img) {
-                img.style.cursor = 'pointer';
-                img.addEventListener('click', () => {
-                    mostrarGaleriaProducto(producto);
-                });
-            }
+        if (sinStock) {
+            div.style.filter = 'grayscale(100%)';
+            div.style.opacity = '0.6';
+            div.style.pointerEvents = 'none'; // evita clicks
+            div.style.position = 'relative';
+        }
 
-            contenedores[categoria].appendChild(div);
-        });
-    }
+        div.innerHTML = `
+            <img src="${producto.imagen}?v=${Date.now()}" alt="${producto.nombre}" title="${producto.nombre} - $${producto.precio} - ${producto.descripcion}">
+            <h3>${producto.nombre}</h3>
+            <p>$${producto.precio}</p>
+        `;
+
+        // Mostrar cartel de "Sin stock"
+        if (sinStock) {
+            const aviso = document.createElement('div');
+            aviso.textContent = 'Sin stock';
+            aviso.style.position = 'absolute';
+            aviso.style.top = '10px';
+            aviso.style.left = '10px';
+            aviso.style.background = 'rgba(0, 0, 0, 0.7)';
+            aviso.style.color = 'white';
+            aviso.style.padding = '4px 8px';
+            aviso.style.borderRadius = '4px';
+            aviso.style.fontWeight = 'bold';
+            div.appendChild(aviso);
+        }
+
+        const img = div.querySelector('img');
+        if (img && !sinStock) {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', () => {
+                mostrarGaleriaProducto(producto);
+            });
+        }
+
+        contenedores[categoria].appendChild(div);
+    });
+}
+
 });
 </script>
 
