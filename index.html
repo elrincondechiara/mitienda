@@ -714,6 +714,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         div.innerHTML = `
             <img src="${producto.imagen}?v=${Date.now()}" alt="${producto.nombre}" title="${producto.nombre} - $${producto.precio} - ${producto.descripcion}">
             <h3>${producto.nombre}</h3>
+			<p>${producto.descripcion}</p>
             <p>$${producto.precio}</p>
         `;
 
