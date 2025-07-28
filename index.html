@@ -799,12 +799,15 @@ function mostrarGaleriaProducto(producto) {
 
     // Selección de color
     const colores = producto.colores ? producto.colores.split(',').map(c => c.trim()) : [];
-    if (colores.length > 0) {
+        if (colores.length > 0) {
+        const colorContainer = document.createElement('div');
+        colorContainer.style.marginBottom = '1em';
+
         const label = document.createElement('label');
         label.textContent = 'Selecciona un color:';
         label.style.display = 'block';
-        label.style.margin = '1em 0 0.5em';
-        contenedorGaleria.appendChild(label);
+        label.style.marginBottom = '0.5em';
+        label.style.fontWeight = 'bold';
 
         const select = document.createElement('select');
         select.id = 'select-color';
@@ -817,7 +820,10 @@ function mostrarGaleriaProducto(producto) {
             option.textContent = color;
             select.appendChild(option);
         });
-        contenedorGaleria.appendChild(select);
+
+        colorContainer.appendChild(label);
+        colorContainer.appendChild(select);
+        contenedorGaleria.appendChild(colorContainer);
     }
 
     const imagenes = [producto.imagen, producto.imagen1, producto.imagen2, producto.imagen3, producto.imagen4, producto.imagen5].filter(img => img);
