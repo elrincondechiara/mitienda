@@ -565,14 +565,19 @@ function mostrarCarrito() {
     btnMP.className = 'modal-btn-mercadopago';
     btnMP.textContent = "Pagar con Mercado Pago";
     btnMP.addEventListener('click', () => {
-        alertaConfirm(
-            "Serás redirigido a Mercado Pago para completar tu compra. Luego, envianos el comprobante de pago por Whatsapp para coordinar el envío. ¡Muchas gracias!",
-            async () => {
-                modal.style.display = 'none';
-                await pagarConMercadoPago();
-            }
-        );
-    });
+    alertaConfirm(
+        "Serás redirigido a Mercado Pago para completar tu compra. Luego, envianos el comprobante de pago por Whatsapp para coordinar el envío. ¡Muchas gracias!",
+        () => {
+            // Cerramos primero el modal de galería
+            modal.style.display = 'none';
+
+            // Pequeño delay para permitir que el modal se oculte completamente antes de redirigir
+            setTimeout(() => {
+                pagarConMercadoPago();
+            }, 100); // 100ms suele ser suficiente
+        }
+    );
+});
     modalBody.appendChild(btnMP);
 
     modal.style.display = 'flex';
