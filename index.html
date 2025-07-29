@@ -320,47 +320,7 @@
     </div>
 </div>
 
-<div id="cliente-formulario-modal" style="
-    display:none;
-    position:fixed;
-    top:0; left:0; width:100%; height:100%;
-    background:rgba(0,0,0,0.5);
-    z-index:999;
-    align-items:center;
-    justify-content:center;
-">
-    <div style="
-        background:#fff;
-        max-width:95%;
-        width:400px;
-        border-radius:12px;
-        padding:1em;
-        position:relative;
-        font-family:'Segoe UI', sans-serif;
-        max-height:90vh;
-        overflow-y:auto;
-    ">
-        <button onclick="cerrarFormularioCliente()" style="
-            position:absolute;
-            top:10px;
-            right:10px;
-            background:transparent;
-            border:none;
-            font-size:1.5em;
-            color:#888;
-            cursor:pointer;
-        ">&times;</button>
-        <h3 style="margin:0; text-align:center; font-weight:500; color:#d81b60;">Tus Datos para la Entrega</h3>
-        <form id="cliente-formulario" style="display:flex; flex-direction:column; gap:0.5em; margin-top:1em;">
-            <input type="text" id="cliente-nombre" placeholder="Nombre completo" required>
-            <input type="tel" id="cliente-telefono" placeholder="Teléfono" required>
-            <input type="text" id="cliente-direccion" placeholder="Dirección" required>
-            <input type="email" id="cliente-email" placeholder="Email (opcional)">
-            <textarea id="cliente-comentarios" placeholder="Comentarios (opcional)"></textarea>
-            <button type="submit" class="modal-btn">Enviar por WhatsApp</button>
-        </form>
-    </div>
-</div>
+
 
 <!-- Botón WhatsApp -->
 <a href="https://wa.me/5491150648790" target="_blank" title="Escribinos por WhatsApp"
@@ -651,6 +611,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+<script>
+async function pagarConMercadoPago() {
+    const carrito = JSON.parse(localStorage.getItem('carrito'));
+    if (!carrito || carrito.length === 0) {
+        alerta("El carrito está vacío. Agrega productos antes de pagar.");
+        return;
+    }
+
+    // Convertir a estructura para Mercado Pago
+    const items = carrito.map(item => ({
+        title: item.nombre,
+        quantity: item.cantidad,
+        unit_price: item.precio
+    }));
+
+    try {
+        const respuesta = await fetch("https://mitienda-ftxw.onrender.com/crear-preferencia", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ items })
+        });
+
+        if (!respuesta.ok) {
+            throw new Error("Error al crear preferencia");
+        }
+
+        const data = await respuesta.json();
+        // Redirigir al checkout de Mercado Pago
+        window.location.href = data.init_point;
+    } catch (error) {
+        console.error(error);
+        alerta("Ocurrió un error al iniciar el pago. Verificá tu conexión o intenta más tarde.");
+    }
+}
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
@@ -925,103 +922,6 @@ document.getElementById('gallery-close').addEventListener('click', () => {
     document.getElementById('gallery-modal').style.display = 'none';
 });
 </script>
-
-
-<script>
-async function pagarConMercadoPago() {
-    const carrito = JSON.parse(localStorage.getItem('carrito'));
-    if (!carrito || carrito.length === 0) {
-        alerta("El carrito está vacío. Agrega productos antes de pagar.");
-        return;
-    }
-
-    // Convertir a estructura para Mercado Pago
-    const items = carrito.map(item => ({
-        title: item.nombre,
-        quantity: item.cantidad,
-        unit_price: item.precio
-    }));
-
-    try {
-        const respuesta = await fetch("https://mitienda-ftxw.onrender.com/crear-preferencia", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ items })
-        });
-
-        if (!respuesta.ok) {
-            throw new Error("Error al crear preferencia");
-        }
-
-        const data = await respuesta.json();
-        // Redirigir al checkout de Mercado Pago
-        window.location.href = data.init_point;
-    } catch (error) {
-        console.error(error);
-        alerta("Ocurrió un error al iniciar el pago. Verificá tu conexión o intenta más tarde.");
-    }
-}
-</script>
-
-<script>
-// Abre el formulario de cliente
-function abrirFormularioCliente() {
-    document.getElementById('cliente-formulario-modal').style.display = 'flex';
-}
-
-// Cierra el formulario de cliente
-function cerrarFormularioCliente() {
-    document.getElementById('cliente-formulario-modal').style.display = 'none';
-}
-
-// Maneja el envío del formulario y redirige a WhatsApp con el mensaje
-document.getElementById('cliente-formulario').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const nombre = document.getElementById('cliente-nombre').value.trim();
-    const telefono = document.getElementById('cliente-telefono').value.trim();
-    const direccion = document.getElementById('cliente-direccion').value.trim();
-    const email = document.getElementById('cliente-email').value.trim();
-    const comentarios = document.getElementById('cliente-comentarios').value.trim();
-
-    const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-    if (carrito.length === 0) {
-        alert('Tu carrito está vacío.');
-        return;
-    }
-
-    let mensaje = `🛒 *Nuevo pedido El Rincón de Chiara*%0A`;
-    mensaje += `👤 *Cliente:* ${nombre}%0A`;
-    mensaje += `📞 *Teléfono:* ${telefono}%0A`;
-    mensaje += `🏠 *Dirección:* ${direccion}%0A`;
-    if (email) mensaje += `📧 *Email:* ${email}%0A`;
-    if (comentarios) mensaje += `📝 *Comentarios:* ${comentarios}%0A`;
-    mensaje += `%0A*Detalle del pedido:*%0A`;
-
-    let total = 0;
-    carrito.forEach(item => {
-        mensaje += `• ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad}%0A`;
-        total += item.precio * item.cantidad;
-    });
-    mensaje += `%0A💰 *Total:* $${total}%0A`;
-
-    // Número de WhatsApp al que se enviará el pedido
-    const telefonoVendedor = "5491150648790";
-    const url = `https://wa.me/${telefonoVendedor}?text=${mensaje}`;
-
-    window.open(url, '_blank');
-    cerrarFormularioCliente();
-    limpiarCarrito(); // Opcional: limpia el carrito luego del envío
-});
-
-// Llamar a abrirFormularioCliente() luego del pago o al confirmar compra:
-function finalizarCompra() {
-    abrirFormularioCliente();
-}
-</script>
-
 
 <!-- Popup de bienvenida -->
 <div id="popup-bienvenida" style="
