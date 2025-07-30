@@ -85,12 +85,7 @@
         <h3 id="modal-title" style="margin:0; text-align:center; font-weight:500; color:#d81b60;">Tu Carrito</h3>
         <div id="modal-body" style="margin-top:1em;"></div>
 
-        <div id="seccion-cp" style="margin-top: 1em; display: none;">
-            <label for="input-cp" style="font-weight: 500;">Ingresá tu código postal:</label>
-            <input type="text" id="input-cp" placeholder="Ej: 1406" style="width: 100%; padding: 0.5em; margin-top: 0.5em;" />
-            <button onclick="consultarEnvioYActualizarTotal()" style="margin-top: 0.5em; width: 100%; padding: 0.5em;">Consultar envío</button>
-            <div id="resultado-envio" style="margin-top: 0.5em; font-weight: bold;"></div>
-        </div>
+
         <!-- FIN SECCIÓN ENVÍO -->
     </div>
 </div>
@@ -167,7 +162,6 @@
 <script src="js/main.js"></script>
 <script src="js/carrito.js"></script>
 <script src="js/productos.js"></script>
-<script src="js/whatsapp.js"></script>
 <script src="js/mercadop.js"></script>
 <script src="js/close-modal.js"></script>
 <script>
@@ -180,6 +174,26 @@ window.addEventListener('scroll', () => {
     }
 });
 </script>
+
+<script>
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.scrollY;
+        const buttons = document.querySelectorAll('.whatsapp-float');
+        buttons.forEach(btn => {
+            btn.style.transition = "opacity 0.5s";
+        });
+    
+        if (currentScroll > lastScroll) {
+            // Scroll hacia abajo -> ocultar
+            buttons.forEach(btn => btn.style.opacity = "0.2");
+        } else {
+            // Scroll hacia arriba -> mostrar
+            buttons.forEach(btn => btn.style.opacity = "1");
+        }
+        lastScroll = currentScroll <= 0 ? 0 : currentScroll;
+    });
+    </script>
 <script>
 document.getElementById('modal-close').addEventListener('click', () => {
     document.getElementById('modal').style.display = 'none';
