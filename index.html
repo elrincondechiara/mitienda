@@ -317,9 +317,16 @@
         ">&times;</button>
         <h3 id="modal-title" style="margin:0; text-align:center; font-weight:500; color:#d81b60;">Tu Carrito</h3>
         <div id="modal-body" style="margin-top:1em;"></div>
+
+        <div id="seccion-cp" style="margin-top: 1em; display: none;">
+            <label for="input-cp" style="font-weight: 500;">Ingresá tu código postal:</label>
+            <input type="text" id="input-cp" placeholder="Ej: 1406" style="width: 100%; padding: 0.5em; margin-top: 0.5em;" />
+            <button onclick="consultarEnvioYActualizarTotal()" style="margin-top: 0.5em; width: 100%; padding: 0.5em;">Consultar envío</button>
+            <div id="resultado-envio" style="margin-top: 0.5em; font-weight: bold;"></div>
+        </div>
+        <!-- FIN SECCIÓN ENVÍO -->
     </div>
 </div>
-
 
 
 <!-- Botón WhatsApp -->
@@ -329,14 +336,6 @@
         <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.82.75 5.46 2.04 7.75L.5 31.5l7.95-2.02C10.55 29.25 13.18 30 16 30c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5zM16 28c-2.42 0-4.68-.66-6.62-1.8l-.47-.28-4.72 1.19 1.21-4.6-.31-.48C4.61 19.66 4 17.88 4 16 4 9.38 9.38 4 16 4s12 5.38 12 12-5.38 12-12 12zm6.02-8.59c-.33-.17-1.94-.96-2.24-1.07-.3-.11-.52-.17-.74.17s-.85 1.07-1.04 1.29c-.19.22-.38.25-.71.08-.33-.17-1.38-.51-2.63-1.63-.97-.87-1.62-1.94-1.81-2.27-.19-.33-.02-.51.14-.67.15-.15.33-.38.49-.57.16-.19.22-.33.33-.55.11-.22.06-.41-.03-.58-.09-.17-.74-1.78-1.02-2.44-.27-.65-.55-.56-.74-.57l-.63-.01c-.22 0-.58.08-.89.41-.3.33-1.17 1.14-1.17 2.77 0 1.63 1.19 3.2 1.36 3.42.17.22 2.35 3.6 5.7 5.05.8.35 1.42.56 1.9.71.8.25 1.53.22 2.11.13.64-.1 1.94-.79 2.21-1.56.27-.77.27-1.43.19-1.56-.08-.13-.3-.21-.63-.38z"/>
     </svg>
 </a>
-
-<!-- Botón Mercado Pago
-<a href="javascript:void(0);" onclick="pagarConMercadoPago()" title="Pagar con Mercado Pago"
-   class="floating-button" style="bottom: 90px; background: #009ee3;">
-    <svg viewBox="0 0 24 24" fill="white" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 4C0.89 4 0 4.89 0 6V18C0 19.1 0.89 20 2 20H22C23.1 20 24 19.1 24 18V6C24 4.89 23.1 4 22 4H2ZM2 6H22V8H2V6ZM2 10H22V18H2V10ZM4 12V14H6V12H4ZM8 12V14H10V12H8Z"/>
-    </svg>
-</a> -->
 
 <!-- Botón Carrito -->
 <a href="javascript:void(0);" onclick="mostrarCarrito()" title="Ver carrito"
@@ -451,6 +450,7 @@ function agregarAlCarrito(nombre, precio) {
 }
 
 // Mostrar carrito emergente
+
 function mostrarCarrito() {
     const modal = document.getElementById('modal');
     const modalBody = document.getElementById('modal-body');
@@ -463,9 +463,10 @@ function mostrarCarrito() {
         return;
     }
 
-    let total = 0;
+    // Mostrar productos con cantidad y precio
+    let subtotal = 0;
     carrito.forEach((item, index) => {
-        total += item.precio * item.cantidad;
+        subtotal += item.precio * item.cantidad;
 
         const row = document.createElement('div');
         row.className = 'modal-product-row';
@@ -496,7 +497,7 @@ function mostrarCarrito() {
 
         const price = document.createElement('div');
         price.className = 'modal-product-price';
-        price.textContent = `$${item.precio * item.cantidad}`;
+        price.textContent = `$${(item.precio * item.cantidad).toFixed(2)}`;
 
         const btnRemove = document.createElement('button');
         btnRemove.className = 'modal-btn-remove';
@@ -511,44 +512,284 @@ function mostrarCarrito() {
         modalBody.appendChild(row);
     });
 
-    // Total
+    // Selector para elegir método de retiro/envío
+    const opcionEnvioDiv = document.createElement('div');
+    opcionEnvioDiv.style.marginTop = '1em';
+    opcionEnvioDiv.style.textAlign = 'center';
+
+    opcionEnvioDiv.innerHTML = `
+        <label>
+            <input type="radio" name="metodo-envio" value="retiro" checked> Retiro en tienda
+        </label>
+        &nbsp;&nbsp;
+        <label>
+            <input type="radio" name="metodo-envio" value="envio"> Envío a domicilio
+        </label>
+    `;
+    modalBody.appendChild(opcionEnvioDiv);
+
+    // Input código postal (oculto inicialmente)
+    const cpDiv = document.createElement('div');
+    cpDiv.style.marginTop = '0.5em';
+    cpDiv.style.textAlign = 'center';
+    cpDiv.style.display = 'none';
+
+    cpDiv.innerHTML = `
+        <input type="text" id="input-cp" placeholder="Ingresá tu código postal" style="padding: 0.5em; width: 80%; font-size: 1em;" />
+        <div id="resultado-envio" style="margin-top: 0.5em; font-weight: bold;"></div>
+    `;
+
+    modalBody.appendChild(cpDiv);
+
+    // Mostrar/ocultar input código postal según opción
+    opcionEnvioDiv.querySelectorAll('input[name="metodo-envio"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'envio') {
+                cpDiv.style.display = 'block';
+                document.getElementById('input-cp').value = '';
+                document.getElementById('resultado-envio').textContent = '';
+                actualizarTotalConEnvio(0);
+            } else {
+                cpDiv.style.display = 'none';
+                actualizarTotalConEnvio(0);
+            }
+        });
+    });
+
+    // Variable para guardar costo envío actual
+    let costoEnvio = 0;
+
+    // Función para actualizar total incluyendo envío
+    function actualizarTotalConEnvio(costoEnvioNuevo) {
+        costoEnvio = costoEnvioNuevo;
+        const totalFinal = subtotal + costoEnvio;
+
+        totalDiv.textContent = `Total: $${totalFinal.toFixed(2)}`;
+    }
+
+    // Escuchar input del código postal para consultar costo
+    cpDiv.querySelector('#input-cp').addEventListener('input', async (e) => {
+        const cp = e.target.value.trim();
+        const resultado = document.getElementById('resultado-envio');
+
+        if (!cp) {
+            resultado.textContent = "Por favor ingresá un código postal.";
+            resultado.style.color = 'red';
+            actualizarTotalConEnvio(0);
+            return;
+        }
+
+        try {
+            const resp = await fetch('https://opensheet.elk.sh/12ij43IAUUSJDJTKKLJ9xxJ6hBUxKN0YOAcVj2PUOry8/Envios');
+            if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
+
+            const data = await resp.json();
+
+            const enviosArray = Array.isArray(data) ? data : (data.envios || []);
+            const registro = enviosArray.find(envio => envio.cp === cp);
+
+            if (registro) {
+                resultado.textContent = `El costo de envío a ${registro.provincia} es $${registro.costo}`;
+                resultado.style.color = 'green';
+                actualizarTotalConEnvio(Number(registro.costo));
+            } else {
+                resultado.textContent = "No se encontró información para ese código postal.";
+                resultado.style.color = 'orange';
+                actualizarTotalConEnvio(0);
+            }
+        } catch (error) {
+            console.error("Error consultando costo de envío:", error);
+            resultado.textContent = "Hubo un error al consultar. Intentalo más tarde.";
+            resultado.style.color = 'red';
+            actualizarTotalConEnvio(0);
+        }
+    });
+
+    // Total final (subtotal + posible envío)
     const totalDiv = document.createElement('div');
     totalDiv.style.textAlign = 'right';
     totalDiv.style.fontWeight = 'bold';
     totalDiv.style.marginTop = '0.5em';
-    totalDiv.textContent = `Total: $${total}`;
+    totalDiv.textContent = `Total: $${subtotal.toFixed(2)}`;
     modalBody.appendChild(totalDiv);
 
     // Botón WhatsApp
     const btnWhats = document.createElement('button');
     btnWhats.className = 'modal-btn-whatsapp';
     btnWhats.textContent = "Enviar pedido por WhatsApp";
-    btnWhats.addEventListener('click', () => enviarPedidoWhatsApp(carrito));
+    btnWhats.style.marginTop = '1em';
+    btnWhats.addEventListener('click', () => {
+        // Armar mensaje con método de envío y costo
+        const metodoEnvio = modalBody.querySelector('input[name="metodo-envio"]:checked').value;
+        let mensaje = "Hola, quiero comprar:\n";
+        carrito.forEach(item => {
+            mensaje += `• ${item.nombre} x${item.cantidad} - $${(item.precio * item.cantidad).toFixed(2)}\n`;
+        });
+        mensaje += `\nSubtotal: $${subtotal.toFixed(2)}\n`;
+
+        if (metodoEnvio === 'envio') {
+            if (costoEnvio > 0) {
+                mensaje += `Costo de envío: $${costoEnvio.toFixed(2)}\n`;
+                mensaje += `Total: $${(subtotal + costoEnvio).toFixed(2)}\n`;
+            } else {
+                alert("Por favor ingresá un código postal válido para calcular el envío.");
+                return;
+            }
+        } else {
+            mensaje += "Retiraré el pedido en tienda.\n";
+            mensaje += `Total: $${subtotal.toFixed(2)}\n`;
+        }
+
+        const texto = encodeURIComponent(mensaje);
+        window.open(`https://wa.me/5491150648790?text=${texto}`, "_blank");
+    });
     modalBody.appendChild(btnWhats);
 
     // Botón Mercado Pago
     const btnMP = document.createElement('button');
     btnMP.className = 'modal-btn-mercadopago';
     btnMP.textContent = "Pagar con Mercado Pago";
+    btnMP.style.marginTop = '0.5em';
     btnMP.addEventListener('click', () => {
-    alertaConfirm(
-        "Serás redirigido a Mercado Pago para completar tu compra. Luego, envianos el comprobante de pago por Whatsapp para coordinar el envío. ¡Muchas gracias!",
-        () => {
-            // Cerramos primero el modal de galería
-            modal.style.display = 'none';
+        alertaConfirm(
+            "Serás redirigido a Mercado Pago para completar tu compra. Luego, envianos el comprobante de pago por Whatsapp para coordinar el envío. ¡Muchas gracias!",
+            () => {
+                modal.style.display = 'none';
 
-            // Pequeño delay para permitir que el modal se oculte completamente antes de redirigir
-            setTimeout(() => {
+                // Agregar costo envío al carrito antes de pagar
+                if (modalBody.querySelector('input[name="metodo-envio"]:checked').value === 'envio') {
+                    if (costoEnvio === 0) {
+                        alerta("Por favor ingresá un código postal válido para calcular el envío.");
+                        return;
+                    }
+                    // Agregar item extra con costo de envío
+                    const envioItemIndex = carrito.findIndex(item => item.nombre === 'Costo de envío');
+                    if (envioItemIndex >= 0) {
+                        carrito[envioItemIndex].precio = costoEnvio;
+                        carrito[envioItemIndex].cantidad = 1;
+                    } else {
+                        carrito.push({ nombre: 'Costo de envío', precio: costoEnvio, cantidad: 1 });
+                    }
+                } else {
+                    // Si es retiro, eliminar si existe el costo de envío
+                    const envioItemIndex = carrito.findIndex(item => item.nombre === 'Costo de envío');
+                    if (envioItemIndex >= 0) {
+                        carrito.splice(envioItemIndex, 1);
+                    }
+                }
+                localStorage.setItem('carrito', JSON.stringify(carrito));
                 pagarConMercadoPago();
-            }, 100); // 100ms suele ser suficiente
-        }
-    );
-});
+            }
+        );
+    });
     modalBody.appendChild(btnMP);
 
     modal.style.display = 'flex';
-	}
-	
+}
+
+
+function toggleSeccionCP() {
+    const tipoEnvio = document.getElementById('tipo-envio').value;
+    const seccionCP = document.getElementById('seccion-cp');
+    if (tipoEnvio === 'envio') {
+        seccionCP.style.display = 'block';
+    } else {
+        seccionCP.style.display = 'none';
+        costoEnvio = 0;
+        actualizarTotalCarrito();
+    }
+}
+
+async function consultarEnvioYActualizarTotal() {
+    const cp = document.getElementById('input-cp').value.trim();
+    const resultado = document.getElementById('resultado-envio');
+
+    if (!cp) {
+        resultado.textContent = "Por favor ingresá un código postal.";
+        resultado.style.color = 'red';
+        return;
+    }
+
+    try {
+        const resp = await fetch(urlEnvios);
+        if (!resp.ok) {
+            throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        console.log('Datos envíos:', data);
+
+        const enviosArray = Array.isArray(data) ? data : (data.envios || []);
+
+        const registro = enviosArray.find(envio => envio.cp === cp);
+
+        if (registro) {
+            resultado.textContent = `El costo de envío a ${registro.provincia} es $${registro.costo}`;
+            resultado.style.color = 'green';
+            // Aquí actualizá el total sumando el costo de envío (lo que ya tenías que hacer)
+        } else {
+            resultado.textContent = "No se encontró información para ese código postal.";
+            resultado.style.color = 'orange';
+        }
+    } catch (error) {
+        console.error("Error al consultar costos de envío:", error);
+        resultado.textContent = "Hubo un error al consultar. Intentalo más tarde.";
+        resultado.style.color = 'red';
+    }
+}
+
+function toggleSeccionCP() {
+    const tipoEnvio = document.getElementById('tipo-envio').value;
+    const seccionCP = document.getElementById('seccion-cp');
+    if (tipoEnvio === 'envio') {
+        seccionCP.style.display = 'block';
+    } else {
+        seccionCP.style.display = 'none';
+        // Limpiar costo de envío y actualizar total si vuelve a retiro
+        document.getElementById('resultado-envio').textContent = '';
+        costoEnvio = 0;
+        mostrarCarrito(); // Actualizar total sin envío
+    }
+}
+
+function actualizarTotalCarrito() {
+    let total = 0;
+    carrito.forEach((producto) => {
+        total += producto.precio * producto.cantidad;
+    });
+    total += costoEnvio;
+    const totalDiv = document.getElementById('total-carrito');
+    if (totalDiv) totalDiv.innerText = `Total: $${total}`;
+}
+
+	function enviarPedidoPorWhatsApp() {
+    const tipoEnvio = document.getElementById('tipo-envio').value;
+    const cp = document.getElementById('input-cp').value.trim();
+    let mensaje = '🛒 *Pedido El Rincón de Chiara*%0A%0A';
+
+    carrito.forEach((producto) => {
+        mensaje += `• ${producto.nombre} x${producto.cantidad} - $${producto.precio * producto.cantidad}%0A`;
+    });
+
+    mensaje += `%0A💰 Subtotal: $${carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0)}%0A`;
+
+    if (tipoEnvio === 'envio') {
+        mensaje += `🚚 Envío a domicilio (CP ${cp}): $${costoEnvio}%0A`;
+    } else {
+        mensaje += `🏪 Retiro en tienda (sin costo)%0A`;
+    }
+
+    const total = carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0) + costoEnvio;
+    mensaje += `🧾 *Total: $${total}*%0A`;
+
+    mensaje += `%0A📍 Método de entrega: ${tipoEnvio === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda'}`;
+
+    const numeroWhatsApp = '5491166666666'; // Reemplazá por el número real con código país y sin espacios
+    const url = `https://wa.me/${numeroWhatsApp}?text=${mensaje}`;
+    window.open(url, '_blank');
+}
+
+
 	// Actualizar cantidad de un producto en el carrito
 	function actualizarCantidadCarrito(indice, nuevaCantidad) {
 		const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
@@ -599,19 +840,6 @@ function mostrarCarrito() {
 </script>
 
 <script>
-// Para cerrar el modal con el botón de cierre
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('modal');
-    const modalClose = document.getElementById('modal-close');
-
-    if (modal && modalClose) {
-        modalClose.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    }
-});
-</script>
-<script>
 async function pagarConMercadoPago() {
     const carrito = JSON.parse(localStorage.getItem('carrito'));
     if (!carrito || carrito.length === 0) {
@@ -652,10 +880,25 @@ async function pagarConMercadoPago() {
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
+// Para cerrar el modal con el botón de cierre
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modal-close');
+
+    if (modal && modalClose) {
+        modalClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+});
+</script>
+<script>
+    const urlEnvios = 'https://opensheet.elk.sh/12ij43IAUUSJDJTKKLJ9xxJ6hBUxKN0YOAcVj2PUOry8/Envios';
+
+
 document.addEventListener('DOMContentLoaded', async function() {
     const urlCategorias = 'https://opensheet.elk.sh/12ij43IAUUSJDJTKKLJ9xxJ6hBUxKN0YOAcVj2PUOry8/Categorias';
     const urlProductos = 'https://opensheet.elk.sh/12ij43IAUUSJDJTKKLJ9xxJ6hBUxKN0YOAcVj2PUOry8/Lista';
-    const urlEnvios = 'https://opensheet.elk.sh/12ij43IAUUSJDJTKKLJ9xxJ6hBUxKN0YOAcVj2PUOry8/Envios'; // ← Cambiado
 
     try {
         const categoriasResp = await fetch(urlCategorias);
@@ -790,13 +1033,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         try {
             const resp = await fetch(urlEnvios);
+            if (!resp.ok) throw new Error(`Error HTTP: ${resp.status}`);
+
             const data = await resp.json();
-            const registro = data.find(envio => envio.cp === cp);
+            console.log('Datos recibidos en envíos:', data);
+
+            // Asegurar que data sea un array
+            const enviosArray = Array.isArray(data) ? data : (data.envios || []);
+
+            const registro = enviosArray.find(envio => envio.cp === cp);
 
             if (registro) {
-				resultado.textContent = `El costo de envío a ${registro.provincia} es $${registro.costo}`;
-				resultado.style.color = 'green';
-			} else {
+                resultado.textContent = `El costo de envío a ${registro.provincia} es $${registro.costo}`;
+                resultado.style.color = 'green';
+            } else {
                 resultado.textContent = "No se encontró información para ese código postal.";
                 resultado.style.color = 'orange';
             }
@@ -808,6 +1058,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 </script>
+
 
 
 
@@ -973,7 +1224,5 @@ document.getElementById('gallery-close').addEventListener('click', () => {
     ">Cerrar</button>
   </div>
 </div>
-
 </body>
-
 </html>
