@@ -81,47 +81,50 @@
 	.floating-button {
 		position: fixed;
 		right: 20px;
+		bottom: 20px; /* Asegura que esté visible */
 		width: 60px;
 		height: 60px;
 		border-radius: 50%;
 		background: #ffffff;
-		box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
 		z-index: 100;
 		transition: transform 0.3s, opacity 0.3s;
-	}
-	
-	.floating-button:hover {
+	  }
+	  
+	  .floating-button:hover {
 		transform: scale(1.1);
-	}
-	
-	.floating-button.scrolled {
+	  }
+	  
+	  .floating-button.scrolled {
 		opacity: 0.6;
-	}
-	
-	.floating-button svg {
+	  }
+	  
+	  .floating-button svg {
 		width: 28px;
 		height: 28px;
-	}
-	
-	#carrito-contador {
+	  }
+	  
+	  #carrito-contador {
 		position: absolute;
-		top: 5px;
-		right: 5px;
+		top: 3px;
+		right: 3px;
 		background: #f44336;
 		color: white;
-		font-size: 0.7em;
+		font-size: 12px;
+		font-weight: bold;
 		border-radius: 50%;
 		width: 20px;
 		height: 20px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	
+		line-height: 20px;
+		text-align: center;
+		display: inline-block;
+		box-shadow: 0 0 0 2px #ffffff;
+	  }
+		  
 	.modal-product-row {
 		display: flex;
 		justify-content: space-between;
