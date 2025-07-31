@@ -104,10 +104,11 @@ function alerta(mensaje, timeout = 0) {
   function actualizarContadorCarrito() {
     const carrito = obtenerCarrito();
     const contador = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+    console.log('Carrito actualizado. Cantidad total:', contador);
     const contadorElem = document.getElementById('carrito-contador');
     if (contadorElem) {
       contadorElem.innerText = contador;
-      contadorElem.style.display = contador > 0 ? 'inline-block' : 'none';
+      contadorElem.style.display = 'inline-block'; // Forzalo visible para testeo
     }
   }
   
