@@ -133,9 +133,7 @@ function alerta(mensaje, timeout = 0) {
   // ==========================
   // Manejo sección código postal y costo envío
   // ==========================
-  
-  <!-- let costoEnvio = 0; // global para mantener costo envío actual -->
-  
+    
   function toggleSeccionCP() {
     const tipoEnvio = document.getElementById('tipo-envio')?.value || '';
     const seccionCP = document.getElementById('seccion-cp');
