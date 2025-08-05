@@ -272,4 +272,11 @@ function alerta(mensaje, timeout = 0) {
     // Actualizar total carrito al iniciar
     actualizarTotalCarrito();
   });
+
+
+  function alertaConfirm(mensaje, callback) {
+    if (confirm(mensaje)) {
+      callback();
+    }
+  }
   

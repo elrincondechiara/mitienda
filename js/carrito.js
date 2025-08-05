@@ -1,9 +1,3 @@
-function alertaConfirm(mensaje, callback) {
-  if (confirm(mensaje)) {
-    callback();
-  }
-}
-
 // Variables globales para estado
 let metodoEnvioSeleccionado = 'retiro';
 let codigoPostal = '';
