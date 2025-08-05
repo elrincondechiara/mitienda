@@ -22,6 +22,14 @@
 		background: #ec8b9e; /* el color actual */
 		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 	}
+
+	.slogan {
+		font-family: 'Great Vibes', cursive;
+		font-size: 24px;
+		color: #340b1c; /* color similar al del logo */
+		text-align: center;
+	  }
+	
 	/* Animación: fade in + pequeño zoom */
 	@keyframes fadeZoom {
 	0% {
