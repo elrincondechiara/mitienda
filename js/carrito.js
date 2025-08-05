@@ -29,38 +29,35 @@ function eliminarDelCarrito(index) {
 
 // Función para pagar con Mercado Pago (debes tenerla implementada)
 async function pagarConMercadoPago() {
+  const confirmado = await alertaConfirm("Vas a ser redirigido a Mercado Pago, ¿deseás continuar?");
+  if (!confirmado) return;
+
   const carrito = JSON.parse(localStorage.getItem('carrito'));
   if (!carrito || carrito.length === 0) {
-      alerta("El carrito está vacío. Agrega productos antes de pagar.");
-      return;
+    alerta("El carrito está vacío. Agrega productos antes de pagar.");
+    return;
   }
 
-  // Convertir a estructura para Mercado Pago
   const items = carrito.map(item => ({
-      title: item.nombre,
-      quantity: item.cantidad,
-      unit_price: item.precio
+    title: item.nombre,
+    quantity: item.cantidad,
+    unit_price: item.precio
   }));
 
   try {
-      const respuesta = await fetch("https://mitienda-ftxw.onrender.com/crear-preferencia", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ items })
-      });
+    const respuesta = await fetch("https://mitienda-ftxw.onrender.com/crear-preferencia", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items })
+    });
 
-      if (!respuesta.ok) {
-          throw new Error("Error al crear preferencia");
-      }
+    if (!respuesta.ok) throw new Error("Error al crear preferencia");
 
-      const data = await respuesta.json();
-      // Redirigir al checkout de Mercado Pago
-      window.location.href = data.init_point;
+    const data = await respuesta.json();
+    window.location.href = data.init_point;
   } catch (error) {
-      console.error(error);
-      alerta("Ocurrió un error al iniciar el pago. Verificá tu conexión o intenta más tarde.");
+    console.error(error);
+    alerta("Ocurrió un error al iniciar el pago. Verificá tu conexión o intenta más tarde.");
   }
 }
 
@@ -371,42 +368,21 @@ async function mostrarCarrito() {
   });
   modalBody.appendChild(btnWhats);
 
+  function alertaConfirm(mensaje, callback) {
+    const confirmado = window.confirm(mensaje);
+    if (confirmado && typeof callback === 'function') {
+      callback();
+    }
+  }
   // Botón Mercado Pago
   const btnMP = document.createElement('button');
   btnMP.className = 'modal-btn-mercadopago';
   btnMP.textContent = "Pagar con Mercado Pago";
   btnMP.style.marginTop = '0.5em';
   btnMP.addEventListener('click', () => {
-    if (typeof alertaConfirm !== 'function') {
-      alert("Función alertaConfirm no definida");
-      return;
-    }
-    alertaConfirm(
-      "Serás redirigido a Mercado Pago para completar tu compra. Luego, envianos el comprobante por WhatsApp para coordinar el envío. ¡Gracias!",
-      () => {
-        modal.style.display = 'none';
-
-        if (metodoEnvioSeleccionado === 'envio') {
-          if (costoEnvio <= 0) {
-            alert("Por favor ingresá un código postal válido para calcular el envío.");
-            return;
-          }
-          const envioItemIndex = carrito.findIndex(i => i.nombre === 'Costo de envío');
-          if (envioItemIndex >= 0) {
-            carrito[envioItemIndex].precio = costoEnvio;
-            carrito[envioItemIndex].cantidad = 1;
-          } else {
-            carrito.push({ nombre: 'Costo de envío', precio: costoEnvio, cantidad: 1 });
-          }
-        } else {
-          const envioItemIndex = carrito.findIndex(i => i.nombre === 'Costo de envío');
-          if (envioItemIndex >= 0) carrito.splice(envioItemIndex, 1);
-        }
-        guardarCarrito(carrito);
-        actualizarContadorCarrito();
-        pagarConMercadoPago();
-      }
-    );
+    guardarCarrito(carrito);
+    actualizarContadorCarrito();
+    pagarConMercadoPago();
   });
   modalBody.appendChild(btnMP);
 

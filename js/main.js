@@ -34,46 +34,7 @@ function alerta(mensaje, timeout = 0) {
     });
   }
   
-  // Modal de confirmación reutilizable con Promise (mejor que callback)
-  function alertaConfirm(mensaje) {
-    return new Promise((resolve) => {
-      const modal = document.getElementById('modal');
-      const modalBody = document.getElementById('modal-body');
-      if (!modal || !modalBody) {
-        resolve(false);
-        return;
-      }
-  
-      modalBody.innerHTML = `
-        <p style="text-align:center; font-size:1.1em;">${mensaje}</p>
-        <div style="margin-top:1em; display:flex; justify-content:center; gap:1em;">
-          <button id="modal-ok" class="modal-btn" aria-label="Confirmar Sí">Sí</button>
-          <button id="modal-cancel" class="modal-btn modal-btn-cancel" aria-label="Cancelar No">No</button>
-        </div>
-      `;
-      modal.style.display = 'flex';
-  
-      const btnOk = document.getElementById('modal-ok');
-      const btnCancel = document.getElementById('modal-cancel');
-  
-      if (!btnOk || !btnCancel) {
-        resolve(false);
-        modal.style.display = 'none';
-        return;
-      }
-  
-      const cerrar = () => { modal.style.display = 'none'; };
-      btnOk.onclick = () => {
-        cerrar();
-        resolve(true);
-      };
-      btnCancel.onclick = () => {
-        cerrar();
-        resolve(false);
-      };
-    });
-  }
-  
+
   // ==========================
   // 🛒 CARRITO
   // ==========================
@@ -274,9 +235,42 @@ function alerta(mensaje, timeout = 0) {
   });
 
 
-  function alertaConfirm(mensaje, callback) {
-    if (confirm(mensaje)) {
-      callback();
-    }
-  }
+  // Modal de confirmación reutilizable con Promise (mejor que callback)
+  function alertaConfirm(mensaje) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('modal');
+      const modalBody = document.getElementById('modal-body');
+      if (!modal || !modalBody) {
+        resolve(false);
+        return;
+      }
   
+      modalBody.innerHTML = `
+        <p style="text-align:center; font-size:1.1em;">${mensaje}</p>
+        <div style="margin-top:1em; display:flex; justify-content:center; gap:1em;">
+          <button id="modal-ok" class="modal-btn" aria-label="Confirmar Sí">Sí</button>
+          <button id="modal-cancel" class="modal-btn modal-btn-cancel" aria-label="Cancelar No">No</button>
+        </div>
+      `;
+      modal.style.display = 'flex';
+  
+      const btnOk = document.getElementById('modal-ok');
+      const btnCancel = document.getElementById('modal-cancel');
+  
+      if (!btnOk || !btnCancel) {
+        resolve(false);
+        modal.style.display = 'none';
+        return;
+      }
+  
+      const cerrar = () => { modal.style.display = 'none'; };
+      btnOk.onclick = () => {
+        cerrar();
+        resolve(true);
+      };
+      btnCancel.onclick = () => {
+        cerrar();
+        resolve(false);
+      };
+    });
+  }
