@@ -22,6 +22,25 @@
 		background: #ec8b9e; /* el color actual */
 		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 	}
+	/* Animación: fade in + pequeño zoom */
+	@keyframes fadeZoom {
+	0% {
+	  opacity: 0;
+	  transform: scale(0.8);
+	}
+	100% {
+	  opacity: 1;
+	  transform: scale(1);
+	}
+  }
+  
+  .logo {
+	display: block;
+	margin: 0 auto;
+	max-width: 300px; /* ajustá según tu diseño */
+	animation: fadeZoom 1.2s ease-out forwards;
+  }
+
 	.container {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
