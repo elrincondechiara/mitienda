@@ -1,6 +1,28 @@
   document.addEventListener('DOMContentLoaded', async () => {
     const urlTestimonios = 'https://opensheet.elk.sh/12ij43IAUUSJDJTKKLJ9xxJ6hBUxKN0YOAcVj2PUOry8/Testimonios';
   
+    let currentIndex = 0;
+
+    function iniciarCarrusel(total) {
+      const track = document.querySelector('.carousel-track');
+    
+      function updateCarousel() {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      }
+    
+      document.getElementById('prevBtn').addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + total) % total;
+        updateCarousel();
+      });
+    
+      document.getElementById('nextBtn').addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % total;
+        updateCarousel();
+      });
+    
+      updateCarousel(); // Inicializar
+    }
+
     // otras funciones como construirCategorias, mostrarProductos...
   
     async function mostrarTestimonios() {

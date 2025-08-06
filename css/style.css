@@ -316,11 +316,12 @@
   max-width: 100%;
   height: auto;
 }
+
 .carousel-container {
 	position: relative;
 	overflow: hidden;
 	width: 100%;
-	max-width: 500px; /* ajustable según tu diseño */
+	max-width: 500px;
 	margin: auto;
 	border-radius: 10px;
 	box-shadow: 0 0 10px rgba(0,0,0,0.15);
@@ -328,14 +329,16 @@
   
   .carousel-track {
 	display: flex;
+	flex-wrap: nowrap;
 	transition: transform 0.5s ease;
+	width: 100%;
   }
   
   .testimonio {
-	min-width: 100%;
+	flex: 0 0 100%;
 	box-sizing: border-box;
 	text-align: center;
-	padding: 1rem;
+	padding: 0.5rem;
   }
   
   .testimonio img {
@@ -349,14 +352,26 @@
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
-	background-color: rgba(255, 255, 255, 0.8);
+	background-color: rgba(255, 255, 255, 0.7);
 	border: none;
 	font-size: 2rem;
 	cursor: pointer;
-	padding: 0 10px;
+	padding: 0.5rem 1rem;
 	z-index: 10;
 	border-radius: 50%;
   }
   
   #prevBtn { left: 10px; }
   #nextBtn { right: 10px; }
+  
+  @media (max-width: 480px) {
+	.carousel-container {
+	  max-width: 100%;
+	}
+  
+	#prevBtn, #nextBtn {
+	  font-size: 1.5rem;
+	  padding: 0.25rem 0.5rem;
+	}
+  }
+  
