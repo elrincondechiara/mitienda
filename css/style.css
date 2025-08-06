@@ -23,6 +23,10 @@
 		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 	}
 
+	.slogan1, .slogan2 {
+		font-family: 'Great Vibes', cursive !important;
+	  }
+	  
 	.slogan1 {
 		font-family: 'Great Vibes', cursive;
 		font-size: 24px;
