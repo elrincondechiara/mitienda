@@ -316,25 +316,47 @@
   max-width: 100%;
   height: auto;
 }
-#testimonios {
-	padding: 2rem;
-	background: #fff8f8;
-	text-align: center;
-  }
-  .testimonio {
-	margin: 1rem auto;
-	max-width: 400px;
-	padding: 1rem;
-	border: 1px solid #eee;
+.carousel-container {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	max-width: 500px; /* ajustable según tu diseño */
+	margin: auto;
 	border-radius: 10px;
-	background: white;
-  }
-  .testimonio img {
-	max-width: 100%;
-	border-radius: 10px;
-  }
-  .testimonio blockquote {
-	font-style: italic;
-	margin: 0.5rem 0;
+	box-shadow: 0 0 10px rgba(0,0,0,0.15);
   }
   
+  .carousel-track {
+	display: flex;
+	transition: transform 0.5s ease;
+  }
+  
+  .testimonio {
+	min-width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+	padding: 1rem;
+  }
+  
+  .testimonio img {
+	width: 100%;
+	height: auto;
+	border-radius: 10px;
+	object-fit: cover;
+  }
+  
+  #prevBtn, #nextBtn {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	background-color: rgba(255, 255, 255, 0.8);
+	border: none;
+	font-size: 2rem;
+	cursor: pointer;
+	padding: 0 10px;
+	z-index: 10;
+	border-radius: 50%;
+  }
+  
+  #prevBtn { left: 10px; }
+  #nextBtn { right: 10px; }
