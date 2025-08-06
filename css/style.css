@@ -316,3 +316,25 @@
   max-width: 100%;
   height: auto;
 }
+#testimonios {
+	padding: 2rem;
+	background: #fff8f8;
+	text-align: center;
+  }
+  .testimonio {
+	margin: 1rem auto;
+	max-width: 400px;
+	padding: 1rem;
+	border: 1px solid #eee;
+	border-radius: 10px;
+	background: white;
+  }
+  .testimonio img {
+	max-width: 100%;
+	border-radius: 10px;
+  }
+  .testimonio blockquote {
+	font-style: italic;
+	margin: 0.5rem 0;
+  }
+  
